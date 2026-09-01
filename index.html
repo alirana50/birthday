@@ -1,113 +1,249 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Happy 23rd Birthday Sia! 🎂</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Pacifico&family=Great+Vibes&family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;600&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      rel="icon"
-      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 72 72%22><text y=%22.9em%22 font-size=%2260%22>🎂</text></svg>"
-    />
-    <link rel="stylesheet" href="./style/style.css" />
-  </head>
-  <body>
-    <!-- Preloader -->
-    <div class="preloader" id="preloader">
-      <div class="preloader-content">
-        <h2>Preparing Something Special...</h2>
-        <div class="loading-bar">
-          <div class="loading-progress" id="loadingProgress"></div>
-        </div>
-        <p class="loading-text" id="loadingText">Loading... 0%</p>
-      </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Happy Birthday, Amna ❤️</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;600&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 72 72%22><text y=%22.9em%22 font-size=%2260%22>🎂</text></svg>" />
+  <link rel="stylesheet" href="./style/style.css" />
+</head>
+<body>
+
+  <!-- ============================================================
+       AMBIENT PARTICLES — fixed canvas, lowest z-layer
+  ============================================================ -->
+  <canvas id="particle-canvas"></canvas>
+
+  <!-- ============================================================
+       MUSIC CONTROL — fixed bottom-right, shown after Begin
+  ============================================================ -->
+  <button class="music-control" id="musicControl" aria-label="Toggle music" title="Toggle music">
+    <svg class="music-ring-svg" width="56" height="56" viewBox="0 0 56 56">
+      <circle class="ring-track" cx="28" cy="28" r="25" />
+      <circle class="ring-progress" id="musicProgressRing" cx="28" cy="28" r="25" />
+    </svg>
+    <div class="music-icon-wrap" id="musicIconWrap">
+      <svg class="music-icon" id="musicIconOn" viewBox="0 0 24 24" fill="none">
+        <path d="M9 18V5l12-2v13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="6" cy="18" r="3" stroke="currentColor" stroke-width="1.5"/>
+        <circle cx="18" cy="16" r="3" stroke="currentColor" stroke-width="1.5"/>
+      </svg>
+      <svg class="music-icon hidden" id="musicIconOff" viewBox="0 0 24 24" fill="none">
+        <path d="M9 18V5l12-2v13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="3 3"/>
+        <circle cx="6" cy="18" r="3" stroke="currentColor" stroke-width="1.5"/>
+        <circle cx="18" cy="16" r="3" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="2" y1="2" x2="22" y2="22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
     </div>
+    <span class="music-time-badge" id="musicTimeBadge">0:00</span>
+  </button>
 
-    <!-- Card Overlay -->
-    <div class="card-overlay" id="cardOverlay">
-      <div class="birthday-card" id="birthdayCard">
-        <div class="card-front">
-          <div class="envelope-icon">💌</div>
-          <h1>For My Love</h1>
-          <p>Click to open your surprise...</p>
-        </div>
-        <div class="card-back">
-          <h2>Happy 23rd Birthday! <br />🎉🎉🎉</h2>
-          <p>
-            Hey, Hunny I've created something special for you...<br />
-            I hope you like it! ✨
-          </p>
-          <button class="open-btn" id="openBtn">Start! 🎈</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Main Timeline Container -->
-    <div class="timeline-container" id="timelineContainer">
-      <div class="section-one">
-        <h1>Hi <span>Sia</span></h1>
-      </div>
-
-      <div class="section-two">
-        <p>I really miss you btw! ✨</p>
-      </div>
-
-      <div class="section-three">
-        <p>It's your 23rd birthday!! :D 🎂</p>
-      </div>
-
-      <div class="section-four">
-        <div class="text-box">
-          <p class="hbd-chatbox">
-            Happy birthday, my love! Twenty-three looks absolutely radiant on
-            you. Every moment with you feels like magic, and I'm so grateful to
-            celebrate this special day with you. You make every day brighter,
-            every laugh louder, and every memory sweeter. Here's to you and all
-            the incredible moments we'll create together! 💕
-          </p>
-          <p class="fake-btn">Send 💌</p>
-        </div>
-      </div>
-
-      <div class="section-five">
-        <p class="idea-1">That's what I was going to say.</p>
-        <p class="idea-2">But then I realized...</p>
-        <p class="idea-3">
-          I needed to do something<br />
-          <strong>extraordinary</strong>
-        </p>
-        <p class="idea-4">Because...</p>
-        <p class="idea-5">You Are Extraordinary ✨</p>
-        <p class="idea-6">
-          <span>2</span>
-          <span>3</span>
-        </p>
-      </div>
-
-      <div class="section-six">
-        <div class="hat">
-          <img src="./img/hat.svg" alt="birthday hat" />
-        </div>
-        <img
-          src="./img/sia.jpg"
-          alt="Sia"
-          class="profile-picture"
-          id="profilePic"
+  <!-- ============================================================
+       SECRECY OVERLAY (Love Gate)
+       Romantic verification modal before hero screen.
+  ============================================================ -->
+  <div id="secrecy-overlay" class="secrecy-overlay">
+    <div class="secrecy-glow-blob" aria-hidden="true"></div>
+    <div class="secrecy-card" id="secrecyCard">
+      <div class="secrecy-icon">🔒❤️</div>
+      <h2 class="secrecy-title" id="secrecyTitle">A Little Secret...</h2>
+      <p class="secrecy-subtitle" id="secrecySubtitle"></p>
+      
+      <form id="secrecyForm" class="secrecy-form" onsubmit="return false;">
+        <label for="secrecyInput" class="secrecy-label" id="secrecyQuestion"></label>
+        <input 
+          type="text" 
+          id="secrecyInput" 
+          class="secrecy-input" 
+          placeholder="Type your answer here..." 
+          autocomplete="off" 
+          autocorrect="off" 
+          autocapitalize="off" 
+          spellcheck="false"
         />
-        <div class="wish">
-          <h3 class="wish-hbd">Happy Birthday Sia!</h3>
-          <h5>
-            May this year bring you endless joy and beautiful memories! 🌟
-          </h5>
+        <p class="secrecy-feedback" id="secrecyFeedback"></p>
+        <button type="submit" id="secrecyBtn" class="secrecy-btn">Unlock My Surprise →</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       HERO — Fixed overlay. The FIRST thing she sees.
+               Photo + atmospheric fireworks + birthday text.
+               Fades out after "Let's begin" is tapped.
+  ============================================================ -->
+  <div id="sec-hero">
+    <!-- Fireworks canvas — behind photo, behind text -->
+    <canvas id="hero-fireworks-canvas"></canvas>
+
+    <!-- Pink atmospheric light blob behind photo -->
+    <div class="hero-glow-blob" aria-hidden="true"></div>
+
+    <!-- Photo + hat + ring -->
+    <div class="hero-photo-wrap" id="heroPhotoWrap">
+      <!-- Hat positioned above photo -->
+      <div class="hero-hat-wrap" id="heroHatWrap">
+        <img src="./img/hat.svg" class="hero-hat" alt="birthday hat" />
+      </div>
+      <!-- Outer glow ring -->
+      <div class="hero-photo-ring" id="heroPhotoRing">
+        <img id="heroPhoto" src="" alt="Amna" class="hero-photo-img" />
+        <!-- Placeholder shown when no photo -->
+        <div class="hero-photo-placeholder" id="heroPhotoPlaceholder">
+          <span>🌸</span>
         </div>
       </div>
+    </div>
 
-      <div class="section-cake">
-        <h2 class="cake-title">Now... Make Your Wish! 🌟</h2>
+    <!-- Birthday text -->
+    <div class="hero-text" id="heroText">
+      <p class="hero-tagline-above" id="heroTaglineAbove"></p>
+      <h1 class="hero-name">Amna</h1>
+      <p class="hero-tagline-below" id="heroTaglineBelow"></p>
+    </div>
+
+    <!-- Begin button -->
+    <button id="begin-btn">Let's begin →</button>
+
+    <!-- Scroll hint (subtle) -->
+    <div class="hero-bottom-hint" aria-hidden="true">
+      <div class="hero-scroll-dot"></div>
+    </div>
+  </div>
+
+
+  <!-- ============================================================
+       MAIN EXPERIENCE
+       Scrollable. Hidden behind hero until Begin is clicked.
+  ============================================================ -->
+  <main id="experience">
+
+    <!-- ──────────────────────────────────────────────────────── -->
+    <!-- SECTION 2: HER BIRTHDAY MESSAGE                         -->
+    <!-- ──────────────────────────────────────────────────────── -->
+    <section id="sec-her" class="full-section her-section">
+      <div class="her-glow-bg" aria-hidden="true"></div>
+      <div class="section-inner centered">
+        <div id="her-lines-wrap" class="her-lines-wrap">
+          <!-- Populated by JS from CONTENT.HER_BIRTHDAY_LINES -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────────────────────────────── -->
+    <!-- SECTION 3: MEMORIES (Cinematic Carousel)                -->
+    <!-- ──────────────────────────────────────────────────────── -->
+    <section id="sec-memories" class="full-section memories-section">
+      <div class="section-inner">
+        <h2 class="section-title section-title--pink reveal-scroll">A few of my favorite moments with you.</h2>
+
+        <div class="memory-carousel" id="memCarousel">
+          <!-- Prev / Next arrows -->
+          <button class="mc-arrow mc-arrow--prev" id="mcPrev" aria-label="Previous memory">&#8249;</button>
+          <button class="mc-arrow mc-arrow--next" id="mcNext" aria-label="Next memory">&#8250;</button>
+
+          <!-- Sliding track -->
+          <div class="mc-track-wrap">
+            <div class="mc-track" id="mcTrack">
+              <!-- Slides populated by JS from CONTENT.MEMORIES -->
+            </div>
+          </div>
+
+          <!-- Dot indicators -->
+          <div class="mc-dots" id="mcDots"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────────────────────────────── -->
+    <!-- SECTION 4: THINGS I LOVE ABOUT YOU                     -->
+    <!-- ──────────────────────────────────────────────────────── -->
+    <section id="sec-love" class="full-section love-section">
+      <div class="love-glow-bg" aria-hidden="true"></div>
+      <div class="love-stage">
+        <h2 class="love-title" id="loveTitle">Things I love about you.</h2>
+        <div class="love-display" id="loveDisplay">
+          <!-- One LOVE_POINT at a time, cycled by JS -->
+        </div>
+        <div class="love-dots" id="loveDots">
+          <!-- Dot indicators populated by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────────────────────────────── -->
+    <!-- SECTION 5: 8 YEARS (brief, poetic)                     -->
+    <!-- ──────────────────────────────────────────────────────── -->
+    <section id="sec-eight" class="full-section eight-section">
+      <!-- Decorative watermark -->
+      <div class="eight-bg-num" aria-hidden="true">8</div>
+      <div class="section-inner centered">
+        <div id="eight-poem" class="eight-poem">
+          <!-- Populated by JS from CONTENT.EIGHT_YEARS_LINES -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────────────────────────────── -->
+    <!-- SECTION 6: INTERACTIVE GIFT BOX                        -->
+    <!-- ──────────────────────────────────────────────────────── -->
+    <section id="sec-gift" class="full-section gift-section">
+      <div class="section-inner centered">
+
+        <div class="gift-intro">
+          <p class="gift-intro-line reveal-scroll" data-delay="0">Okay.</p>
+          <p class="gift-intro-line reveal-scroll" data-delay="1">Enough looking back.</p>
+          <p class="gift-intro-line reveal-scroll" data-delay="2">Today is your day.</p>
+          <p class="gift-intro-line reveal-scroll" data-delay="3">And I got you something.</p>
+        </div>
+
+        <!-- Gift Box -->
+        <div id="gift-wrap" class="gift-wrap" role="button" tabindex="0" aria-label="Open the gift">
+          <div class="gift-box" id="giftBox">
+            <div class="gift-lid" id="giftLid">
+              <div class="gift-bow">
+                <div class="gift-bow-loop left"></div>
+                <div class="gift-bow-loop right"></div>
+                <div class="gift-bow-knot"></div>
+              </div>
+              <div class="gift-lid-ribbon"></div>
+            </div>
+            <div class="gift-body">
+              <div class="gift-ribbon-v"></div>
+              <div class="gift-ribbon-h"></div>
+              <div class="gift-shine"></div>
+            </div>
+          </div>
+          <div class="gift-shadow"></div>
+          <p class="gift-open-hint" id="giftHint">Open it ↑</p>
+        </div>
+
+        <div class="gift-reveal" id="giftReveal">
+          <div class="gift-reveal-inner">
+            <p id="giftRevealText"></p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────────────────────────────── -->
+    <!-- SECTION 7: BIRTHDAY CAKE + WISH                        -->
+    <!-- ──────────────────────────────────────────────────────── -->
+    <section id="sec-cake" class="full-section cake-section">
+      <!-- Atmospheric pink candlelight glow -->
+      <div class="cake-glow-bg" aria-hidden="true"></div>
+
+      <div class="section-inner centered">
+        <h2 class="section-title section-title--pink reveal-scroll">Make a wish, Amna.</h2>
+        <p class="cake-sub reveal-scroll">Don't tell me what it is.</p>
+
         <div class="cake-wrapper">
+          <!-- The birthday cake — candles added by JS -->
           <div class="realistic-cake" id="cake">
             <div class="plate"></div>
             <div class="layer layer-bottom"></div>
@@ -119,36 +255,91 @@
             <div class="drip drip3"></div>
           </div>
         </div>
-        <p class="blow-instruction" id="blowInstruction">
-          🌬️ Blow into your mic to blow out the candles! 🌬️
-        </p>
-        <p class="blown-message" id="blownMessage">
-          🎊 Your wish has been sent to the stars! 🎊<br />
-          May all your dreams come true! ✨
-        </p>
+
+        <div class="cake-interact">
+          <p class="blow-instruction" id="blowInstruction">🌬️ Blow into your mic to blow out the candles</p>
+          <button class="blow-fallback-btn" id="blowFallbackBtn" style="display:none">
+            ✨ Tap to blow them out
+          </button>
+        </div>
+
+        <p class="blown-message" id="blownMessage">Wish granted. ❤️</p>
       </div>
+    </section>
 
-      <div class="section-nine">
-        <p style="margin-bottom: 2rem">Happy Birthday My Love! 🎂💘</p>
-        <br /><br /><br />
-        <p>So... did you love it? 💕</p>
-        <p id="replay">Click here to experience it all over again! 🔄</p>
-        <p class="last-smile">Forever yours! 💖</p>
+    <!-- ──────────────────────────────────────────────────────── -->
+    <!-- SECTION 8: FIREWORKS — THE CELEBRATION CLIMAX           -->
+    <!-- ──────────────────────────────────────────────────────── -->
+    <section id="sec-fireworks" class="full-section fireworks-section">
+      <canvas id="fireworks-canvas"></canvas>
+      <div class="fw-overlay" id="fwOverlay">
+        <!-- Amna name in huge script — feels like fireworks spelling her name -->
+        <p class="fw-amna-name" id="fwAmnaName">Amna</p>
+        <div id="fw-lines" class="fw-lines">
+          <!-- Populated by JS from CONTENT.FIREWORKS_LINES -->
+        </div>
       </div>
-    </div>
+    </section>
 
-    <!-- Music Control -->
-    <div class="music-control" id="musicControl">
-      <span id="musicIcon">🔊</span>
-    </div>
+    <!-- ──────────────────────────────────────────────────────── -->
+    <!-- SECTION 9: LOVE LETTER                                  -->
+    <!-- ──────────────────────────────────────────────────────── -->
+    <section id="sec-letter" class="full-section letter-section">
+      <div class="section-inner centered">
+        <p class="letter-pre reveal-scroll">There's something I still want to say.</p>
 
-    <!-- Hidden Audio -->
-    <audio id="bgMusic" loop="false">
-      <source src="./music/hbd.mpeg" type="audio/mpeg" />
-    </audio>
+        <!-- Envelope — click to open -->
+        <div class="envelope-scene" id="envelopeScene" role="button" tabindex="0" aria-label="Open the letter">
+          <div class="envelope" id="envelope">
+            <div class="envelope-flap" id="envelopeFlap"></div>
+            <div class="envelope-body">
+              <div class="envelope-seal">❤️</div>
+            </div>
+          </div>
+          <p class="envelope-tap-hint reveal-scroll">tap to open</p>
+        </div>
 
-    <!-- GSAP Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
-    <script src="./script/index.js"></script>
-  </body>
+        <!-- Letter paper — hidden until envelope opened -->
+        <div class="letter-paper" id="letterPaper">
+          <div class="letter-inner">
+            <div class="letter-content" id="letterContent">
+              <!-- Populated by JS from CONTENT.LOVE_LETTER -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────────────────────────────── -->
+    <!-- SECTION 10: FINAL SURPRISE                              -->
+    <!-- ──────────────────────────────────────────────────────── -->
+    <section id="sec-final" class="full-section final-section">
+      <div class="final-fade-top" aria-hidden="true"></div>
+      <div class="section-inner centered">
+        <p class="final-pre reveal-scroll">One last thing...</p>
+        <p class="final-pre2 reveal-scroll">Because you deserve more than just a birthday message.</p>
+
+        <div id="final-content" class="final-content">
+          <!-- Populated by JS from CONTENT.FINAL_SURPRISE -->
+        </div>
+
+        <button class="replay-btn" id="replayBtn">↺ Experience it again</button>
+      </div>
+    </section>
+
+  </main><!-- /#experience -->
+
+  <!-- ============================================================
+       AUDIO
+  ============================================================ -->
+  <audio id="bgMusic" loop preload="auto"></audio>
+
+  <!-- ============================================================
+       SCRIPTS — load order: GSAP → content → logic
+  ============================================================ -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
+  <script src="./script/content.js"></script>
+  <script src="./script/index.js"></script>
+
+</body>
 </html>
