@@ -43,9 +43,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Set hero photo
   setHeroPhoto();
 
-  // Populate all dynamic content
+  // Populate dynamic content
   buildHerLines();
-  buildMemoryCarousel();
+  init3DCarousel();
   buildLoveDots();
   buildEightPoem();
   buildGiftMessage();
@@ -54,8 +54,10 @@ document.addEventListener('DOMContentLoaded', () => {
   buildFinalSurprise();
   buildHeroTaglines();
 
-  // Start ambient particles
+  // Start ambient canvas layers & floating hearts
+  initStarfield();
   initParticleCanvas();
+  initFloatingHearts();
 
   // Music control wiring
   initMusicControl();
@@ -259,112 +261,102 @@ function buildHerLines() {
   });
 }
 
-function buildMemoryCarousel() {
-  const track = document.getElementById('mcTrack');
-  const dotsEl = document.getElementById('mcDots');
-  if (!track) return;
+function init3DCarousel() {
+  const ring  = document.getElementById('carousel3DRing');
+  const stage = document.getElementById('carousel3DStage');
+  if (!ring || !stage) return;
 
-  const mems = CONTENT.MEMORIES || [];
-  state.carouselSlides = mems.length;
+  const photos = CONTENT.MEMORIES || [];
+  if (photos.length === 0) return;
 
-  mems.forEach((mem, i) => {
-    const slide = document.createElement('div');
-    slide.className = 'mc-slide';
-    slide.dataset.index = i;
+  let angle = 0;
+  let radius = 360;
+  let cardW = 240;
+  let dragging = false;
+  let lastX = 0;
+  let velocity = -0.06;
 
-    // Photo
-    const photo = document.createElement('div');
-    photo.className = 'mc-photo';
+  function measure() {
+    const w = window.innerWidth;
+    cardW = w < 640 ? 170 : w < 1024 ? 220 : 260;
+    const cardH = Math.round(cardW * 1.33);
+    radius = Math.round(cardW / (2 * Math.tan(Math.PI / photos.length)) + 40);
 
-    if (mem.photoPath) {
-      const img = document.createElement('img');
-      img.src = mem.photoPath;
-      img.alt = mem.title;
-      img.loading = 'lazy';
-      photo.appendChild(img);
-    } else {
-      const ph = document.createElement('div');
-      ph.className = 'mc-placeholder';
-      ph.innerHTML = '🌸';
-      photo.appendChild(ph);
-    }
+    const cards = ring.querySelectorAll('.carousel-3d-card');
+    const step = 360 / photos.length;
 
-    // Info
-    const info = document.createElement('div');
-    info.className = 'mc-info';
-    info.innerHTML = `
-      <p class="mc-date">${mem.date}</p>
-      <h3 class="mc-title">${mem.title}</h3>
-      <p class="mc-caption">${mem.caption}</p>
-    `;
-
-    slide.appendChild(photo);
-    slide.appendChild(info);
-    track.appendChild(slide);
-
-    // Dot
-    if (dotsEl) {
-      const dot = document.createElement('button');
-      dot.className = 'mc-dot' + (i === 0 ? ' active' : '');
-      dot.setAttribute('aria-label', `Memory ${i + 1}`);
-      dot.addEventListener('click', () => goToSlide(i));
-      dotsEl.appendChild(dot);
-    }
-  });
-
-  // Track width
-  track.style.width = (mems.length * 100) + '%';
-  track.querySelectorAll('.mc-slide').forEach(s => {
-    s.style.minWidth = (100 / mems.length) + '%';
-  });
-
-  // Smooth transition
-  track.style.transition = 'transform 0.55s cubic-bezier(0.22, 1, 0.36, 1)';
-
-  // Arrows
-  const prev = document.getElementById('mcPrev');
-  const next = document.getElementById('mcNext');
-  if (prev) prev.addEventListener('click', () => goToSlide(state.carouselIndex - 1));
-  if (next) next.addEventListener('click', () => goToSlide(state.carouselIndex + 1));
-
-  // Touch swipe
-  const carousel = document.getElementById('memCarousel');
-  if (carousel) {
-    carousel.addEventListener('touchstart', e => {
-      state.touchStartX = e.touches[0].clientX;
-    }, { passive: true });
-    carousel.addEventListener('touchend', e => {
-      const diff = state.touchStartX - e.changedTouches[0].clientX;
-      if (Math.abs(diff) > 45) {
-        goToSlide(state.carouselIndex + (diff > 0 ? 1 : -1));
-      }
-    }, { passive: true });
+    cards.forEach((card, i) => {
+      card.style.width = `${cardW}px`;
+      card.style.height = `${cardH}px`;
+      card.style.left = `${-cardW / 2}px`;
+      card.style.top = `${-cardH / 2}px`;
+      card.style.transform = `rotateY(${i * step}deg) translateZ(${radius}px)`;
+    });
   }
 
-  // Keyboard support
-  document.addEventListener('keydown', e => {
-    const sec = document.getElementById('sec-memories');
-    if (!sec) return;
-    const rect = sec.getBoundingClientRect();
-    const visible = rect.top < window.innerHeight / 2 && rect.bottom > window.innerHeight / 2;
-    if (!visible) return;
-    if (e.key === 'ArrowLeft')  goToSlide(state.carouselIndex - 1);
-    if (e.key === 'ArrowRight') goToSlide(state.carouselIndex + 1);
+  // Build card figures
+  ring.innerHTML = '';
+  const step = 360 / photos.length;
+
+  photos.forEach((p, i) => {
+    const card = document.createElement('figure');
+    card.className = 'carousel-3d-card';
+
+    const photoHTML = p.photoPath
+      ? `<img src="${p.photoPath}" alt="${p.caption || p.title}" loading="lazy" draggable="false" />`
+      : `<div class="carousel-3d-placeholder">🌸</div>`;
+
+    card.innerHTML = `
+      ${photoHTML}
+      <figcaption class="carousel-3d-caption">
+        ${p.caption || p.title}
+      </figcaption>
+    `;
+
+    ring.appendChild(card);
   });
-}
 
-function goToSlide(index) {
-  const n     = state.carouselSlides;
-  const track = document.getElementById('mcTrack');
-  const dots  = document.querySelectorAll('.mc-dot');
-  if (!track || n === 0) return;
+  measure();
+  window.addEventListener('resize', measure, { passive: true });
 
-  // Clamp with wrap-around
-  state.carouselIndex = ((index % n) + n) % n;
-  const pct = state.carouselIndex * (100 / n);
-  track.style.transform = `translateX(-${pct}%)`;
+  // Pointer drag interactions with velocity & inertia
+  function onDown(e) {
+    dragging = true;
+    lastX = e.clientX;
+    if (stage.setPointerCapture) {
+      try { stage.setPointerCapture(e.pointerId); } catch {}
+    }
+  }
 
-  dots.forEach((d, i) => d.classList.toggle('active', i === state.carouselIndex));
+  function onMove(e) {
+    if (!dragging) return;
+    const dx = e.clientX - lastX;
+    lastX = e.clientX;
+    velocity = dx * 0.22;
+    angle += dx * 0.22;
+  }
+
+  function onUp() {
+    dragging = false;
+  }
+
+  stage.addEventListener('pointerdown', onDown);
+  stage.addEventListener('pointermove', onMove);
+  stage.addEventListener('pointerup', onUp);
+  stage.addEventListener('pointerleave', onUp);
+  stage.addEventListener('pointercancel', onUp);
+
+  // Animation loop
+  function tick() {
+    if (!dragging) {
+      angle += velocity;
+      velocity += (-0.06 - velocity) * 0.02;
+    }
+    ring.style.transform = `translate(-50%, -50%) rotateX(-6deg) rotateY(${angle}deg)`;
+    requestAnimationFrame(tick);
+  }
+
+  tick();
 }
 
 function buildLoveDots() {
@@ -381,15 +373,16 @@ function buildEightPoem() {
   const container = document.getElementById('eight-poem');
   if (!container) return;
 
-  const lines = CONTENT.EIGHT_YEARS_LINES || [];
+  const lines = CONTENT.TWENTYFOUR_YEARS_LINES || CONTENT.EIGHT_YEARS_LINES || [];
   lines.forEach((text, i) => {
     const p = document.createElement('p');
-    // Style assignment: first/last are pause, the big "8 years happened" is main, others are detail
     let cls = 'eight-line ';
-    if (i === 0 || i === lines.length - 2) cls += 'eight-line--pause';
-    else if (i === 1)                       cls += 'eight-line--main';
-    else if (i === lines.length - 1)        cls += 'eight-line--closing';
-    else                                    cls += 'eight-line--detail';
+    if (i === 0)                      cls += 'eight-line--title';
+    else if (i === 1)                 cls += 'eight-line--sub';
+    else if (i === 2)                 cls += 'eight-line--pause';
+    else if (i === lines.length - 1)  cls += 'eight-line--closing';
+    else                              cls += 'eight-line--focal';
+
     p.className = cls;
     p.textContent = text;
     container.appendChild(p);
@@ -402,8 +395,29 @@ function buildGiftMessage() {
 }
 
 function buildLetter() {
-  const el = document.getElementById('letterContent');
-  if (el) el.textContent = CONTENT.LOVE_LETTER || '';
+  const salutation = document.getElementById('letterSalutation');
+  const body = document.getElementById('letterBody');
+  const valediction = document.getElementById('letterValediction');
+  const cfg = CONTENT.LOVE_LETTER || {};
+
+  if (salutation) {
+    salutation.textContent = cfg.salutation || "My love,";
+  }
+
+  if (body) {
+    body.innerHTML = '';
+    const paras = Array.isArray(cfg.paragraphs) ? cfg.paragraphs : [cfg || ''];
+    paras.forEach(text => {
+      const p = document.createElement('p');
+      p.className = 'letter-line';
+      p.textContent = text;
+      body.appendChild(p);
+    });
+  }
+
+  if (valediction) {
+    valediction.textContent = cfg.valediction || "Always yours.";
+  }
 }
 
 function buildFireworksText() {
@@ -605,6 +619,156 @@ function startHeroFireworks() {
     ctx.globalAlpha = 1;
   }
   render();
+}
+
+// ================================================================
+//  STARFIELD CANVAS — parallax, twinkling stars & shooting stars
+// ================================================================
+function initStarfield() {
+  const canvas = document.getElementById('starfield-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  let raf = 0;
+  let w = 0, h = 0, dpr = 1;
+  let stars = [];
+  const shooting = [];
+  const pointer = { x: 0, y: 0 };
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function build() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = window.innerWidth;
+    h = window.innerHeight;
+    canvas.width = Math.floor(w * dpr);
+    canvas.height = Math.floor(h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const count = Math.min(280, Math.floor((w * h) / 5500));
+    stars = Array.from({ length: Math.max(80, count) }, () => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      z: Math.random() * 0.8 + 0.2,
+      r: Math.random() * 1.8 + 0.5,
+      tw: Math.random() * Math.PI * 2,
+      hue: Math.random() < 0.25 ? 350 : Math.random() < 0.5 ? 30 : 220,
+    }));
+  }
+
+  function onPointerMove(e) {
+    pointer.x = (e.clientX / window.innerWidth - 0.5) * 2;
+    pointer.y = (e.clientY / window.innerHeight - 0.5) * 2;
+  }
+
+  let t = 0;
+  function render() {
+    t += 0.012;
+    ctx.clearRect(0, 0, w, h);
+
+    for (const s of stars) {
+      s.tw += 0.02 + s.z * 0.03;
+      const alpha = (0.35 + Math.abs(Math.sin(s.tw)) * 0.65) * s.z;
+      const px = s.x + pointer.x * 18 * s.z;
+      const py = s.y + pointer.y * 18 * s.z + Math.sin(t * 0.4 + s.x * 0.01) * 2 * s.z;
+
+      ctx.beginPath();
+      ctx.fillStyle = `hsla(${s.hue}, 95%, ${s.hue === 220 ? 94 : 82}%, ${alpha.toFixed(3)})`;
+      ctx.arc(px, py, s.r * (0.7 + s.z * 0.5), 0, Math.PI * 2);
+      ctx.fill();
+
+      if (s.r > 1.3) {
+        ctx.globalAlpha = alpha * 0.35;
+        ctx.beginPath();
+        ctx.arc(px, py, s.r * 4.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    if (!reduce && Math.random() < 0.008 && shooting.length < 3) {
+      shooting.push({
+        x: Math.random() * w * 0.8,
+        y: Math.random() * h * 0.4,
+        vx: 6 + Math.random() * 4,
+        vy: 1.8 + Math.random() * 1.5,
+        life: 1,
+      });
+    }
+
+    for (let i = shooting.length - 1; i >= 0; i--) {
+      const sh = shooting[i];
+      if (!sh) continue;
+      sh.x += sh.vx;
+      sh.y += sh.vy;
+      sh.life -= 0.014;
+
+      const grad = ctx.createLinearGradient(sh.x, sh.y, sh.x - sh.vx * 18, sh.y - sh.vy * 18);
+      grad.addColorStop(0, `rgba(255, 230, 240, ${Math.max(sh.life, 0)})`);
+      grad.addColorStop(1, "rgba(255, 120, 160, 0)");
+
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.moveTo(sh.x, sh.y);
+      ctx.lineTo(sh.x - sh.vx * 18, sh.y - sh.vy * 18);
+      ctx.stroke();
+
+      if (sh.life <= 0 || sh.x > w + 200) shooting.splice(i, 1);
+    }
+
+    raf = requestAnimationFrame(render);
+  }
+
+  build();
+  render();
+  window.addEventListener('resize', build, { passive: true });
+  window.addEventListener('pointermove', onPointerMove, { passive: true });
+}
+
+// ================================================================
+//  FLOATING HEARTS — ambient rose hearts drifting upward
+// ================================================================
+function initFloatingHearts() {
+  const container = document.getElementById('floating-hearts-layer');
+  if (!container) return;
+
+  container.innerHTML = '';
+  const count = 20;
+  const frag = document.createDocumentFragment();
+
+  for (let i = 0; i < count; i++) {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 32 29');
+    svg.setAttribute('class', 'floating-heart-svg');
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('fill', 'currentColor');
+    path.setAttribute('d', 'M16 29S0 18.4 0 9.6C0 4.3 4.2 0 9.4 0 12.4 0 15 1.5 16 3.8 17 1.5 19.6 0 22.6 0 27.8 0 32 4.3 32 18.4 16 29 16 29z');
+    svg.appendChild(path);
+
+    const left = Math.random() * 100;
+    const size = Math.floor(14 + Math.random() * 24);
+    const delay = (Math.random() * 16).toFixed(2);
+    const duration = (14 + Math.random() * 16).toFixed(2);
+    const drift = Math.floor((Math.random() - 0.5) * 140);
+    const opacity = (0.35 + Math.random() * 0.4).toFixed(2);
+
+    svg.style.cssText = `
+      left: ${left}%;
+      width: ${size}px;
+      height: ${size}px;
+      animation-delay: ${delay}s;
+      animation-duration: ${duration}s;
+      --drift: ${drift}px;
+      --max-opacity: ${opacity};
+      color: #e8638c;
+    `;
+
+    frag.appendChild(svg);
+  }
+
+  container.appendChild(frag);
 }
 
 // ================================================================
@@ -869,8 +1033,10 @@ function runLoveSequence() {
     if (prev) {
       gsap.to(prev, {
         opacity:  0,
-        y:        -20,
-        duration: 0.5,
+        y:        -18,
+        xPercent: -50,
+        yPercent: -50,
+        duration: 0.45,
         ease:     'power2.in',
         onComplete: () => prev.remove(),
       });
@@ -885,14 +1051,16 @@ function runLoveSequence() {
     idx++;
 
     gsap.fromTo(el,
-      { opacity: 0, y: 30 },
+      { opacity: 0, y: 24, xPercent: -50, yPercent: -50 },
       {
         opacity: 1,
         y:       0,
+        xPercent: -50,
+        yPercent: -50,
         duration: 0.8,
         ease:    'power3.out',
         delay:   0.35,
-        onComplete: () => setTimeout(showNext, 2500),
+        onComplete: () => setTimeout(showNext, 2600),
       }
     );
   }
@@ -1294,33 +1462,44 @@ function revealFireworksText() {
 //  SECTION 9 — ENVELOPE + LOVE LETTER
 // ================================================================
 function initEnvelopeLetter() {
-  const scene       = document.getElementById('envelopeScene');
-  const envelope    = document.getElementById('envelope');
-  const letterPaper = document.getElementById('letterPaper');
+  const btn = document.getElementById('letterEnvelopeBtn');
+  const paper = document.getElementById('letterPaper');
 
-  if (!scene) return;
+  if (!btn || !paper) return;
 
-  function openEnvelope() {
+  function openLetter() {
     if (state.envelopeOpened) return;
     state.envelopeOpened = true;
 
-    if (envelope) envelope.classList.add('open');
+    // Fade out button
+    gsap.to(btn, {
+      opacity: 0,
+      scale: 0.94,
+      y: -20,
+      duration: 0.45,
+      ease: 'power2.in',
+      onComplete: () => {
+        btn.style.display = 'none';
+        paper.style.display = 'block';
 
-    setTimeout(() => {
-      gsap.to(scene, { y: -40, opacity: 0, duration: 0.7, ease: 'power2.in' });
+        // 3D fold out animation for letter paper card
+        gsap.fromTo(paper,
+          { y: 40, opacity: 0, rotateX: -25 },
+          { y: 0, opacity: 1, rotateX: 0, duration: 1.1, ease: 'power3.out' }
+        );
 
-      if (letterPaper) {
-        letterPaper.style.display = 'block';
-        // Force layout before transition
-        requestAnimationFrame(() => requestAnimationFrame(() => {
-          letterPaper.classList.add('visible');
-        }));
+        // Staggered line animation
+        const lines = paper.querySelectorAll('.letter-line');
+        gsap.fromTo(lines,
+          { opacity: 0, y: 16 },
+          { opacity: 1, y: 0, stagger: 0.18, duration: 0.9, delay: 0.35, ease: 'power2.out' }
+        );
       }
-    }, 800);
+    });
   }
 
-  scene.addEventListener('click',   openEnvelope);
-  scene.addEventListener('keydown', e => { if (e.key === 'Enter') openEnvelope(); });
+  btn.addEventListener('click', openLetter);
+  btn.addEventListener('keydown', e => { if (e.key === 'Enter') openLetter(); });
 }
 
 // ================================================================

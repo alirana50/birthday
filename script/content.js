@@ -75,39 +75,39 @@ const CONTENT = {
   // ============================================================
   MEMORIES: [
     {
-      date: "— Add a date —",
-      title: "[ Memory 01 ]",
-      caption: "Replace this with a caption for this memory.",
+      date: "Memory 01",
+      title: "Under every star we ever wished on",
+      caption: "Under every star we ever wished on",
       photoPath: "",
     },
     {
-      date: "— Add a date —",
-      title: "[ Memory 02 ]",
-      caption: "Replace this with a caption for this memory.",
+      date: "Memory 02",
+      title: "Rain, two cups, no rush",
+      caption: "Rain, two cups, no rush",
       photoPath: "",
     },
     {
-      date: "— Add a date —",
-      title: "[ Memory 03 ]",
-      caption: "Replace this with a caption for this memory.",
+      date: "Memory 03",
+      title: "That street. That song. Us.",
+      caption: "That street. That song. Us.",
       photoPath: "",
     },
     {
-      date: "— Add a date —",
-      title: "[ Memory 04 ]",
-      caption: "Replace this with a caption for this memory.",
+      date: "Memory 04",
+      title: "Words I still mean",
+      caption: "Words I still mean",
       photoPath: "",
     },
     {
-      date: "— Add a date —",
-      title: "[ Memory 05 ]",
-      caption: "Replace this with a caption for this memory.",
+      date: "Memory 05",
+      title: "The sky showing off for you",
+      caption: "The sky showing off for you",
       photoPath: "",
     },
     {
-      date: "— Add a date —",
-      title: "[ Memory 06 ]",
-      caption: "Replace this with a caption for this memory.",
+      date: "Memory 06",
+      title: "Somewhere quiet, still holding hands",
+      caption: "Somewhere quiet, still holding hands",
       photoPath: "",
     },
   ],
@@ -127,18 +127,16 @@ const CONTENT = {
   ],
 
   // ============================================================
-  // SECTION 5 — 8 YEARS (brief, poetic)
-  // Not a list of chapters — just a beautiful moment.
-  // Replace with your own words.
+  // SECTION 5 — 24 YEARS OF YOU (8 Years of Us)
+  // Celebrating her 24th Birthday and 8 years together.
   // ============================================================
-  EIGHT_YEARS_LINES: [
-    "Somehow...",
-    "8 years happened.",
-    "Eight years of ordinary days.",
-    "Eight years of growing.",
-    "Eight years of being each other's.",
-    "And somehow...",
-    "we're still here.",
+  HER_AGE: 24,
+  TWENTYFOUR_YEARS_LINES: [
+    "24 years of your light in this world.",
+    "24 years of laughter, kindness, and grace.",
+    "And out of those 24 years...",
+    "I'm the luckiest person because for 8 of them, I got to hold your hand.",
+    "Happy 24th Birthday, my love. ❤️",
   ],
 
   // ============================================================
@@ -160,14 +158,16 @@ const CONTENT = {
   // ============================================================
   // SECTION 9 — LOVE LETTER
   // Written in the letter paper after the envelope opens.
-  // Use line breaks freely. This is the emotional heart of the site.
   // ============================================================
-  LOVE_LETTER: `[ Write your personal birthday letter here.
-
-This is the emotional peak of the experience.
-Take your time with it. Make it yours.
-
-— Your name ]`,
+  LOVE_LETTER: {
+    salutation: "My love,",
+    paragraphs: [
+      "I've tried a few times to explain what you did to my life, and every version sounds too small. So here's the honest one: before you, days happened to me. Now I choose them, because you're in them.",
+      "You laugh at things nobody else notices. You remember the details I mention once. You make ordinary Tuesdays feel like something worth keeping.",
+      "Happy birthday. Thank you for being born, for being stubborn, for being kind, and for choosing me back."
+    ],
+    valediction: "Always yours."
+  },
 
   // ============================================================
   // SECTION 10 — FINAL SURPRISE
