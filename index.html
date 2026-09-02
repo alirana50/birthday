@@ -14,9 +14,11 @@
 <body>
 
   <!-- ============================================================
-       AMBIENT PARTICLES — fixed canvas, lowest z-layer
+       AMBIENT LAYERS — Starfield, floating hearts & particles
   ============================================================ -->
+  <canvas id="starfield-canvas"></canvas>
   <canvas id="particle-canvas"></canvas>
+  <div id="floating-hearts-layer" class="floating-hearts-layer" aria-hidden="true"></div>
 
   <!-- ============================================================
        MUSIC CONTROL — fixed bottom-right, shown after Begin
@@ -135,26 +137,21 @@
     </section>
 
     <!-- ──────────────────────────────────────────────────────── -->
-    <!-- SECTION 3: MEMORIES (Cinematic Carousel)                -->
+    <!-- SECTION 3: MEMORIES (3D Drag-to-Spin Carousel)          -->
     <!-- ──────────────────────────────────────────────────────── -->
     <section id="sec-memories" class="full-section memories-section">
-      <div class="section-inner">
-        <h2 class="section-title section-title--pink reveal-scroll">A few of my favorite moments with you.</h2>
+      <div class="section-inner centered">
+        <p class="memories-subtitle reveal-scroll">THE GALLERY</p>
+        <h2 class="section-title section-title--pink reveal-scroll">Moments, spinning</h2>
+        <p class="memories-desc reveal-scroll">Six frames I keep going back to. Give them a push.</p>
 
-        <div class="memory-carousel" id="memCarousel">
-          <!-- Prev / Next arrows -->
-          <button class="mc-arrow mc-arrow--prev" id="mcPrev" aria-label="Previous memory">&#8249;</button>
-          <button class="mc-arrow mc-arrow--next" id="mcNext" aria-label="Next memory">&#8250;</button>
-
-          <!-- Sliding track -->
-          <div class="mc-track-wrap">
-            <div class="mc-track" id="mcTrack">
-              <!-- Slides populated by JS from CONTENT.MEMORIES -->
+        <div class="carousel-3d-stage-wrap reveal-scroll" id="carousel3DStageWrap">
+          <div class="carousel-3d-stage" id="carousel3DStage">
+            <div class="carousel-3d-ring" id="carousel3DRing">
+              <!-- Populated by JS from CONTENT.MEMORIES -->
             </div>
           </div>
-
-          <!-- Dot indicators -->
-          <div class="mc-dots" id="mcDots"></div>
+          <p class="carousel-3d-hint">drag to spin</p>
         </div>
       </div>
     </section>
@@ -176,14 +173,14 @@
     </section>
 
     <!-- ──────────────────────────────────────────────────────── -->
-    <!-- SECTION 5: 8 YEARS (brief, poetic)                     -->
+    <!-- SECTION 5: 24 YEARS OF YOU (8 Years of Us)              -->
     <!-- ──────────────────────────────────────────────────────── -->
     <section id="sec-eight" class="full-section eight-section">
       <!-- Decorative watermark -->
-      <div class="eight-bg-num" aria-hidden="true">8</div>
+      <div class="eight-bg-num" aria-hidden="true">24</div>
       <div class="section-inner centered">
         <div id="eight-poem" class="eight-poem">
-          <!-- Populated by JS from CONTENT.EIGHT_YEARS_LINES -->
+          <!-- Populated by JS from CONTENT.TWENTYFOUR_YEARS_LINES -->
         </div>
       </div>
     </section>
@@ -286,25 +283,30 @@
     <!-- ──────────────────────────────────────────────────────── -->
     <section id="sec-letter" class="full-section letter-section">
       <div class="section-inner centered">
-        <p class="letter-pre reveal-scroll">There's something I still want to say.</p>
+        <p class="letter-subtitle reveal-scroll">IN WRITING</p>
+        <h2 class="section-title section-title--pink reveal-scroll">A letter</h2>
+        <p class="letter-desc reveal-scroll">Because saying it out loud makes me nervous.</p>
 
-        <!-- Envelope — click to open -->
-        <div class="envelope-scene" id="envelopeScene" role="button" tabindex="0" aria-label="Open the letter">
-          <div class="envelope" id="envelope">
-            <div class="envelope-flap" id="envelopeFlap"></div>
-            <div class="envelope-body">
-              <div class="envelope-seal">❤️</div>
-            </div>
-          </div>
-          <p class="envelope-tap-hint reveal-scroll">tap to open</p>
-        </div>
+        <!-- Letter perspective stage wrapper -->
+        <div class="letter-stage" id="letterStage" style="perspective: 900px;">
+          <!-- Envelope Card — tap to open -->
+          <button class="letter-envelope-card reveal-scroll" id="letterEnvelopeBtn" aria-label="Open the letter">
+            <svg viewBox="0 0 64 44" class="letter-envelope-svg" aria-hidden="true">
+              <rect x="1" y="1" width="62" height="42" rx="4" fill="currentColor" fill-opacity="0.18" />
+              <rect x="1" y="1" width="62" height="42" rx="4" fill="none" stroke="currentColor" stroke-width="1.2" />
+              <path d="M1 4l31 22L63 4" fill="none" stroke="currentColor" stroke-width="1.2" class="envelope-path" />
+            </svg>
+            <span class="letter-envelope-title">Open the letter</span>
+            <span class="letter-envelope-sub">WRITTEN AT 2AM, OBVIOUSLY</span>
+          </button>
 
-        <!-- Letter paper — hidden until envelope opened -->
-        <div class="letter-paper" id="letterPaper">
-          <div class="letter-inner">
-            <div class="letter-content" id="letterContent">
-              <!-- Populated by JS from CONTENT.LOVE_LETTER -->
+          <!-- Letter paper — 3D unfolds when opened -->
+          <div class="letter-paper-card" id="letterPaper" style="display: none; transform-style: preserve-3d;">
+            <p class="letter-line letter-salutation" id="letterSalutation">My love,</p>
+            <div class="letter-body" id="letterBody">
+              <!-- Paragraphs populated by JS from CONTENT.LOVE_LETTER -->
             </div>
+            <p class="letter-line letter-valediction" id="letterValediction">Always yours.</p>
           </div>
         </div>
       </div>
