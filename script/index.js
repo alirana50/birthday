@@ -1390,8 +1390,7 @@ function animateEightPoem() {
 //  SECTION 3 — CAROUSEL VISIBILITY INIT
 // ================================================================
 function initCarouselVisibility() {
-  // Ensure first slide is visible
-  goToSlide(0);
+  // 3D Carousel is initialized and runs on its own animation loop
 }
 
 // ================================================================
@@ -1411,7 +1410,8 @@ function initGiftBox() {
   const hint    = document.getElementById('giftHint');
   const reveal  = document.getElementById('giftReveal');
 
-  if (!wrap) return;
+  if (!wrap || wrap.dataset.bound) return;
+  wrap.dataset.bound = 'true';
 
   function openGift() {
     if (state.giftOpened) return;
@@ -1524,10 +1524,6 @@ function buildCandles() {
 
 // ---- Mic detection ----
 function stopMicDetection() {
-  if (state.meydaAnalyzer) {
-    try { state.meydaAnalyzer.stop(); } catch (_) {}
-    state.meydaAnalyzer = null;
-  }
   if (state.micStream) {
     state.micStream.getTracks().forEach(t => t.stop());
     state.micStream = null;
@@ -1547,23 +1543,12 @@ async function checkMicPermission() {
 }
 
 function initCakeInteraction() {
-  const micBtn     = document.getElementById('blowMicBtn');
-  const refreshBtn = document.getElementById('cakeRefreshBtn');
+  const micBtn = document.getElementById('blowMicBtn');
 
   if (micBtn && !micBtn.dataset.bound) {
     micBtn.dataset.bound = 'true';
     micBtn.addEventListener('click', () => {
-      if (state.candlesBlown) {
-        relightCandles();
-      }
       requestMicAccess();
-    });
-  }
-
-  if (refreshBtn && !refreshBtn.dataset.bound) {
-    refreshBtn.dataset.bound = 'true';
-    refreshBtn.addEventListener('click', () => {
-      relightCandles();
     });
   }
 }
@@ -1607,7 +1592,7 @@ function requestMicAccess() {
     });
 }
 
-function relightCandles() {
+function relightCandles(autoRestartMic = false) {
   state.candlesBlown = false;
 
   // 1. Relight all candles and clean up smoke / embers
@@ -1641,11 +1626,14 @@ function relightCandles() {
   const instr      = document.getElementById('blowInstruction');
 
   if (micBtn)     micBtn.classList.remove('listening');
-  if (micBtnText) micBtnText.textContent = 'Connecting to mic...';
-  if (instr)      instr.textContent = '🎙️ Relighting candles and connecting mic...';
+  if (micBtnText) micBtnText.textContent = 'Enable Mic to Blow Candles';
+  if (instr)      instr.textContent      = 'Click the button above to enable your mic, then blow to blow them out';
 
-  // Immediately restart mic for seamless repeated testing
-  requestMicAccess();
+  if (autoRestartMic) {
+    if (micBtnText) micBtnText.textContent = 'Connecting to mic...';
+    if (instr)      instr.textContent      = '🎙️ Relighting candles and connecting mic...';
+    requestMicAccess();
+  }
 }
 
 function spawnCandleSmoke(candle) {
@@ -1731,21 +1719,14 @@ function setupAudioAnalysis(stream) {
       if (warmup > 0) {
         rmsSum += rms;
         warmup--;
-        if (instr) instr.textContent = `🎙️ Calibrating... ${warmup}`;
         if (warmup === 0) {
           // Cap floor at 0.040 — a normal blow produces rms 0.05–0.30,
           // so this is always detectable even in noisy rooms.
           rmsFloor = Math.min(0.040, Math.max(0.012, (rmsSum / 60) * 1.3));
-          if (instr) instr.textContent = `✅ Ready! floor:${rmsFloor.toFixed(4)}`;
+          if (instr) instr.textContent = '🌬️ Blow gently onto your microphone to make a wish!';
         }
         requestAnimationFrame(detect);
         return;
-      }
-
-      // DEBUG: live rms display so we can tune the threshold
-      if (instr && !state.candlesBlown) {
-        instr.textContent = `rms:${rms.toFixed(4)}  floor:${rmsFloor.toFixed(4)}  s:${sustained}`;
-        instr.style.color = '';
       }
 
       // With AGC OFF: blow into mic → rms 0.05–0.40, speech at distance → rms 0.003–0.020
@@ -1783,6 +1764,10 @@ function setupAudioAnalysis(stream) {
         sustained = 0;
         blowAccum = Math.max(0, blowAccum - 0.07);
         flames.forEach(f => { f.classList.remove('blowing'); if (f.style.transform) f.style.transform = ''; });
+        if (instr && blowAccum === 0 && !state.candlesBlown) {
+          instr.textContent = '🌬️ Blow gently onto your microphone to make a wish!';
+          instr.style.color = '';
+        }
       }
 
       requestAnimationFrame(detect);
@@ -1811,7 +1796,7 @@ function blowCandles() {
 
   if (micBtn)     micBtn.classList.remove('listening');
   if (micBtnText) micBtnText.textContent = '✨ Candles Blown Out!';
-  if (instr)      instr.textContent = 'All 24 candles extinguished! 🎂 (Tap Relight to test again)';
+  if (instr)      instr.textContent = 'All 24 candles extinguished! 🎂 Make a wish ❤️';
 
   // Extinguish candles staggered with realistic smoke wisps rising
   const candles = document.querySelectorAll('.candle');
@@ -1825,13 +1810,13 @@ function blowCandles() {
   // Show wish granted
   setTimeout(() => {
     if (msg) msg.classList.add('show');
-    // Auto-scroll to fireworks climax after 4.5s (gives user time to test relighting)
+    // Auto-scroll to fireworks climax after 3.5s
     setTimeout(() => {
       if (state.candlesBlown) {
         const fw = document.getElementById('sec-fireworks');
         if (fw) fw.scrollIntoView({ behavior: 'smooth' });
       }
-    }, 4500);
+    }, 3500);
   }, 900);
 }
 
@@ -1973,7 +1958,8 @@ function initEnvelopeLetter() {
   const btn = document.getElementById('letterEnvelopeBtn');
   const paper = document.getElementById('letterPaper');
 
-  if (!btn || !paper) return;
+  if (!btn || !paper || btn.dataset.bound) return;
+  btn.dataset.bound = 'true';
 
   function openLetter() {
     if (state.envelopeOpened) return;
@@ -2015,7 +2001,10 @@ function initEnvelopeLetter() {
 // ================================================================
 function initFinalButton() {
   const replayBtn = document.getElementById('replayBtn');
-  if (replayBtn) replayBtn.addEventListener('click', replayExperience);
+  if (replayBtn && !replayBtn.dataset.bound) {
+    replayBtn.dataset.bound = 'true';
+    replayBtn.addEventListener('click', replayExperience);
+  }
 }
 
 function animateFinalSection() {
@@ -2098,122 +2087,135 @@ function setMusicIcon(playing) {
 //  REPLAY — full state reset
 // ================================================================
 function replayExperience() {
-  // Stop big fireworks
-  state.fireworksBig = false;
-  if (state.fireworksBigId) cancelAnimationFrame(state.fireworksBigId);
-  stopMicDetection();
+  const replayBtn = document.getElementById('replayBtn');
+  if (replayBtn) replayBtn.style.pointerEvents = 'none';
 
-  // Reset candles
-  state.candles.forEach(c => c.remove());
-  state.candles    = [];
-  state.candlesBlown = false;
-  state.cakeReady  = false;
-
-  // Reset sections
-  state.herPlayed    = false;
-  state.lovePlayed   = false;
-  state.eightPlayed  = false;
-  state.giftOpened   = false;
-  state.envelopeOpened = false;
-
-  // DOM resets
-  const blownMsg = document.getElementById('blownMessage');
-  if (blownMsg) blownMsg.classList.remove('show');
-
-  const instr = document.getElementById('blowInstruction');
-  if (instr) {
-    instr.style.display = '';
-    instr.textContent   = '🌬️ Blow into your mic to blow out the candles';
+  // Elegant dark transition curtain
+  let curtain = document.getElementById('replayCurtain');
+  if (!curtain) {
+    curtain = document.createElement('div');
+    curtain.id = 'replayCurtain';
+    curtain.style.cssText = `
+      position: fixed;
+      inset: 0;
+      background: #08040d;
+      z-index: 999999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.45s ease;
+    `;
+    document.body.appendChild(curtain);
   }
 
-  const fallBtn = document.getElementById('blowFallbackBtn');
-  if (fallBtn) fallBtn.style.display = 'none';
+  // 1. Fade smoothly to dark
+  curtain.style.pointerEvents = 'all';
+  curtain.style.opacity = '1';
 
-  const lid = document.getElementById('giftLid');
-  if (lid) lid.classList.remove('open');
-
-  const giftReveal = document.getElementById('giftReveal');
-  if (giftReveal) { giftReveal.style.display = 'none'; gsap.set(giftReveal, { opacity: 0 }); }
-
-  const giftWrap = document.getElementById('gift-wrap');
-  if (giftWrap) gsap.set(giftWrap, { filter: 'none' });
-
-  const giftHint = document.getElementById('giftHint');
-  if (giftHint) gsap.set(giftHint, { opacity: 1 });
-
-  const envelope = document.getElementById('envelope');
-  if (envelope) envelope.classList.remove('open');
-
-  const scene = document.getElementById('envelopeScene');
-  if (scene) gsap.set(scene, { y: 0, opacity: 1 });
-
-  const letterPaper = document.getElementById('letterPaper');
-  if (letterPaper) { letterPaper.style.display = 'none'; letterPaper.classList.remove('visible'); }
-
-  // Reset love display
-  const loveDisplay = document.getElementById('loveDisplay');
-  if (loveDisplay) loveDisplay.innerHTML = '';
-  const loveTitle = document.getElementById('loveTitle');
-  if (loveTitle) gsap.set(loveTitle, { opacity: 0 });
-  document.querySelectorAll('.love-dot').forEach((d, i) => d.classList.toggle('active', i === 0));
-
-  // Reset her lines
-  document.querySelectorAll('.her-line').forEach(l => gsap.set(l, { opacity: 0, y: 22 }));
-
-  // Reset 8 years poem
-  document.querySelectorAll('.eight-line').forEach(l => gsap.set(l, { opacity: 0, y: 14 }));
-
-  // Reset fireworks text
-  const amnaName = document.getElementById('fwAmnaName');
-  if (amnaName) gsap.set(amnaName, { opacity: 0, scale: 0.88 });
-  document.querySelectorAll('.fw-line').forEach(l => gsap.set(l, { opacity: 0, y: 16 }));
-
-  // Reset fireworks canvas
-  const fwCanvas = document.getElementById('fireworks-canvas');
-  if (fwCanvas) {
-    const ctx = fwCanvas.getContext('2d');
-    ctx.clearRect(0, 0, fwCanvas.width, fwCanvas.height);
-  }
-
-  // Reset final section
-  const finalHeadline = document.querySelector('.final-headline');
-  const finalSubline  = document.querySelector('.final-subline');
-  const finalClosing  = document.querySelector('.final-closing');
-  const finalPhoto    = document.querySelector('.final-photo');
-  const replayBtn     = document.getElementById('replayBtn');
-  const finalPres     = document.querySelectorAll('.final-pre, .final-pre2');
-
-  if (finalHeadline) gsap.set(finalHeadline, { opacity: 0, scale: 0.88, y: 20 });
-  if (finalSubline)  gsap.set(finalSubline,  { opacity: 0, y: 18 });
-  if (finalClosing)  gsap.set(finalClosing,  { opacity: 0, y: 18 });
-  if (finalPhoto)    gsap.set(finalPhoto,    { opacity: 0, y: 30 });
-  if (replayBtn)     gsap.set(replayBtn,     { opacity: 0 });
-  finalPres.forEach(el => el.classList.remove('revealed'));
-
-  // Reset .reveal-scroll elements
-  document.querySelectorAll('.reveal-scroll.revealed').forEach(el => el.classList.remove('revealed'));
-
-  // Reset gift intro lines
-  document.querySelectorAll('.gift-intro-line').forEach(el => el.classList.remove('revealed'));
-
-  // Reset carousel
-  goToSlide(0);
-
-  // Restart music
-  const music = document.getElementById('bgMusic');
-  if (music) {
-    music.currentTime = 0;
-    music.play()
-      .then(() => { state.musicPlaying = true; setMusicIcon(true); })
-      .catch(() => {});
-  }
-
-  // Scroll back to top of experience
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-
-  // Re-init observers after scroll settles
   setTimeout(() => {
+    // 2. Stop ongoing animations & detection
+    state.fireworksBig = false;
+    if (state.fireworksBigId) cancelAnimationFrame(state.fireworksBigId);
+    stopMicDetection();
+    if (state.loveTimer) clearTimeout(state.loveTimer);
+
+    // 3. Reset state flags
+    state.herPlayed      = false;
+    state.lovePlayed     = false;
+    state.eightPlayed    = false;
+    state.giftOpened     = false;
+    state.envelopeOpened = false;
+    state.cakeReady      = false;
+
+    // 4. Reset DOM elements & sections
+    // --- Section 2: Her lines ---
+    document.querySelectorAll('.her-line').forEach(l => gsap.set(l, { opacity: 0, y: 22 }));
+
+    // --- Section 4: Love points ---
+    const loveDisplay = document.getElementById('loveDisplay');
+    if (loveDisplay) loveDisplay.innerHTML = '';
+    const loveTitle = document.getElementById('loveTitle');
+    if (loveTitle) gsap.set(loveTitle, { opacity: 0 });
+    document.querySelectorAll('.love-dot').forEach((d, i) => d.classList.toggle('active', i === 0));
+
+    // --- Section 5: Eight poem ---
+    document.querySelectorAll('.eight-line').forEach(l => gsap.set(l, { opacity: 0, y: 14 }));
+
+    // --- Section 6: Gift box ---
+    const lid = document.getElementById('giftLid');
+    if (lid) lid.classList.remove('open');
+    const giftReveal = document.getElementById('giftReveal');
+    if (giftReveal) { giftReveal.style.display = 'none'; gsap.set(giftReveal, { opacity: 0, y: 24 }); }
+    const giftWrap = document.getElementById('gift-wrap');
+    if (giftWrap) gsap.set(giftWrap, { filter: 'none' });
+    const giftHint = document.getElementById('giftHint');
+    if (giftHint) gsap.set(giftHint, { opacity: 1 });
+
+    // --- Section 7: Cake & Candles ---
+    relightCandles(false);
+
+    // --- Section 8: Fireworks ---
+    const amnaName = document.getElementById('fwAmnaName');
+    if (amnaName) gsap.set(amnaName, { opacity: 0, scale: 0.88 });
+    document.querySelectorAll('.fw-line').forEach(l => gsap.set(l, { opacity: 0, y: 16 }));
+    const fwCanvas = document.getElementById('fireworks-canvas');
+    if (fwCanvas) {
+      const ctx = fwCanvas.getContext('2d');
+      ctx.clearRect(0, 0, fwCanvas.width, fwCanvas.height);
+    }
+
+    // --- Section 9: Envelope ---
+    const letterBtn = document.getElementById('letterEnvelopeBtn');
+    if (letterBtn) {
+      letterBtn.style.display = '';
+      gsap.set(letterBtn, { opacity: 1, scale: 1, y: 0 });
+    }
+    const letterPaper = document.getElementById('letterPaper');
+    if (letterPaper) {
+      letterPaper.style.display = 'none';
+      gsap.set(letterPaper, { opacity: 0, y: 40 });
+    }
+
+    // --- Section 10: Final ---
+    const finalHeadline = document.querySelector('.final-headline');
+    const finalSubline  = document.querySelector('.final-subline');
+    const finalClosing  = document.querySelector('.final-closing');
+    const finalPhoto    = document.querySelector('.final-photo');
+    if (finalHeadline) gsap.set(finalHeadline, { opacity: 0, scale: 0.88, y: 20 });
+    if (finalSubline)  gsap.set(finalSubline,  { opacity: 0, y: 18 });
+    if (finalClosing)  gsap.set(finalClosing,  { opacity: 0, y: 18 });
+    if (finalPhoto)    gsap.set(finalPhoto,    { opacity: 0, y: 30 });
+    if (replayBtn) {
+      gsap.set(replayBtn, { opacity: 0 });
+      replayBtn.style.pointerEvents = '';
+    }
+    document.querySelectorAll('.final-pre, .final-pre2').forEach(el => el.classList.remove('revealed'));
+
+    // Reset all scroll reveals
+    document.querySelectorAll('.reveal-scroll.revealed').forEach(el => el.classList.remove('revealed'));
+    document.querySelectorAll('.gift-intro-line.revealed').forEach(el => el.classList.remove('revealed'));
+
+    // --- Music restart ---
+    const music = document.getElementById('bgMusic');
+    if (music) {
+      music.currentTime = 0;
+      music.play()
+        .then(() => { state.musicPlaying = true; setMusicIcon(true); })
+        .catch(() => {});
+    }
+
+    // 5. Instantly jump scroll position to top while curtain is solid
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+
+    // 6. Re-init observers now that scroll is firmly at top
     initScrollObservers();
-    initInteractiveSections();
-  }, 700);
+
+    // 7. Fade curtain out smoothly
+    setTimeout(() => {
+      curtain.style.opacity = '0';
+      curtain.style.pointerEvents = 'none';
+    }, 200);
+
+  }, 480);
 }

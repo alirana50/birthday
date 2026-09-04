@@ -29,7 +29,7 @@ const CONTENT = {
   // ============================================================
   COUNTDOWN: {
     enabled: true,
-    targetDate: "2026-09-04T10:45:00",
+    targetDate: "2026-09-04T12:20:00",
     preTitle: "NOT YET, MY LOVE",
     titleMain: "The stars are still",
     titleHighlight: "getting ready",
@@ -124,6 +124,18 @@ const CONTENT = {
     },
     {
       date: "Memory 06",
+      title: "Somewhere quiet, still holding hands",
+      caption: "Somewhere quiet, still holding hands",
+      photoPath: "",
+    },
+    {
+      date: "Memory 07",
+      title: "Somewhere quiet, still holding hands",
+      caption: "Somewhere quiet, still holding hands",
+      photoPath: "",
+    },
+    {
+      date: "Memory 08",
       title: "Somewhere quiet, still holding hands",
       caption: "Somewhere quiet, still holding hands",
       photoPath: "",
