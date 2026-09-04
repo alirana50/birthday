@@ -45,18 +45,70 @@
   </button>
 
   <!-- ============================================================
+       COUNTDOWN OVERLAY (Atmospheric Starry Pre-Auth Layer)
+  ============================================================ -->
+  <div id="countdown-overlay" class="countdown-overlay" style="display: none;">
+    <div class="countdown-glow-blob" aria-hidden="true"></div>
+
+    <!-- Main Live Countdown Content -->
+    <div class="countdown-content" id="countdownContent">
+      <p class="cd-pre-title" id="cdPreTitle">NOT YET, MY LOVE</p>
+      <h1 class="cd-main-title" id="cdMainTitle">
+        <span id="cdTitleMain">The stars are still</span>
+        <span class="cd-title-highlight" id="cdTitleHighlight">getting ready</span>
+      </h1>
+
+      <div class="countdown-timer-wrap" id="countdownTimerWrap">
+        <div class="cd-box">
+          <span class="cd-num" id="cdDays">00</span>
+          <span class="cd-label">DAYS</span>
+        </div>
+        <div class="cd-box">
+          <span class="cd-num" id="cdHours">00</span>
+          <span class="cd-label">HOURS</span>
+        </div>
+        <div class="cd-box">
+          <span class="cd-num" id="cdMinutes">00</span>
+          <span class="cd-label">MINUTES</span>
+        </div>
+        <div class="cd-box">
+          <span class="cd-num" id="cdSeconds">00</span>
+          <span class="cd-label">SECONDS</span>
+        </div>
+      </div>
+
+      <div class="cd-divider" aria-hidden="true"></div>
+
+      <p class="cd-desc" id="cdDesc">
+        I've been counting down for weeks. When this reaches zero, the whole sky opens up — and everything in it was made for you.
+      </p>
+
+      <p class="cd-stay-hint" id="cdStayHint">stay right here</p>
+    </div>
+
+    <!-- Celebration Fireworks Canvas & Graffiti Screen -->
+    <canvas id="cd-fireworks-canvas" class="cd-fireworks-canvas"></canvas>
+    <div class="cd-celebration-screen" id="cdCelebrationScreen" style="display: none;">
+      <span class="cd-graffiti-tag">✨ 24 YEARS OF LIGHT ✨</span>
+      <h1 class="cd-graffiti-title" id="cdGraffitiTitle">Happy Birthday, Amna! 🎉</h1>
+      <div class="cd-graffiti-splash">💖 ✦ 🌸 ✦ 👑 ✦ ✨</div>
+      <p class="cd-graffiti-sub" id="cdGraffitiSub">The whole sky just opened up for you. ❤️</p>
+    </div>
+  </div>
+
+  <!-- ============================================================
        SECRECY OVERLAY (Love Gate)
        Romantic verification modal before hero screen.
   ============================================================ -->
-  <div id="secrecy-overlay" class="secrecy-overlay">
+  <div id="secrecy-overlay" class="secrecy-overlay" style="display: none;">
     <div class="secrecy-glow-blob" aria-hidden="true"></div>
     <div class="secrecy-card" id="secrecyCard">
       <div class="secrecy-icon">🔒❤️</div>
-      <h2 class="secrecy-title" id="secrecyTitle">A Little Secret...</h2>
-      <p class="secrecy-subtitle" id="secrecySubtitle"></p>
+      <h2 class="secrecy-title" id="secrecyTitle">A Little Secret Between Us...</h2>
+      <p class="secrecy-subtitle" id="secrecySubtitle">Before I show you what I made, I need to make sure it's really you. ❤️</p>
       
       <form id="secrecyForm" class="secrecy-form" onsubmit="return false;">
-        <label for="secrecyInput" class="secrecy-label" id="secrecyQuestion"></label>
+        <label for="secrecyInput" class="secrecy-label" id="secrecyQuestion">Where did we meet for the first time?</label>
         <input 
           type="text" 
           id="secrecyInput" 
@@ -246,18 +298,51 @@
             <div class="layer layer-bottom"></div>
             <div class="layer layer-middle"></div>
             <div class="layer layer-top"></div>
-            <div class="icing"></div>
-            <div class="drip drip1"></div>
-            <div class="drip drip2"></div>
-            <div class="drip drip3"></div>
+            <!-- Seamless Organic Dripping Frosting -->
+            <svg viewBox="0 0 260 120" class="cake-drip-svg" aria-hidden="true">
+              <defs>
+                <linearGradient id="cakeIcingGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#fed7e2" />
+                  <stop offset="45%" stop-color="#f8b4cb" />
+                  <stop offset="100%" stop-color="#e8638c" />
+                </linearGradient>
+                <filter id="dripShadow" x="-10%" y="-10%" width="120%" height="130%">
+                  <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="rgba(45, 10, 20, 0.45)" />
+                </filter>
+              </defs>
+              <path d="
+                M 8,45
+                C 8,45 28,76 42,76
+                C 54,76 62,50 74,50
+                C 86,50 94,88 110,88
+                C 126,88 132,56 146,56
+                C 160,56 168,80 180,80
+                C 192,80 198,52 212,52
+                C 226,52 238,70 252,46
+                L 252,42
+                C 252,18 196,0 130,0
+                C 64,0 8,18 8,42
+                Z
+              " fill="url(#cakeIcingGrad)" filter="url(#dripShadow)" />
+            </svg>
+            <div class="icing-top-gloss" aria-hidden="true"></div>
           </div>
         </div>
 
         <div class="cake-interact">
-          <p class="blow-instruction" id="blowInstruction">🌬️ Blow into your mic to blow out the candles</p>
-          <button class="blow-fallback-btn" id="blowFallbackBtn" style="display:none">
-            ✨ Tap to blow them out
-          </button>
+          <div class="cake-controls-wrap">
+            <button class="blow-mic-btn" id="blowMicBtn" type="button" aria-label="Enable microphone to blow out candles">
+              <span class="blow-mic-icon">🎙️</span>
+              <span class="blow-mic-label" id="blowMicBtnText">Enable Mic to Blow Candles</span>
+            </button>
+            <button class="cake-refresh-btn" id="cakeRefreshBtn" type="button" title="Relight Candles to test again" aria-label="Relight candles">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="refresh-svg">
+                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+              </svg>
+              <span>Relight</span>
+            </button>
+          </div>
+          <p class="blow-instruction" id="blowInstruction">Click the button above to enable your mic, then blow hard to blow them out</p>
         </div>
 
         <p class="blown-message" id="blownMessage">Wish granted. ❤️</p>
@@ -326,6 +411,13 @@
         </div>
 
         <button class="replay-btn" id="replayBtn">↺ Experience it again</button>
+
+        <!-- Romantic Site Footer -->
+        <footer class="site-footer">
+          <div class="footer-divider" aria-hidden="true"></div>
+          <p class="footer-credit">Made by me with love <span class="footer-heart">❤️</span></p>
+          <p class="footer-sub">For Amna • Happy 24th Birthday</p>
+        </footer>
       </div>
     </section>
 
@@ -339,6 +431,7 @@
   <!-- ============================================================
        SCRIPTS — load order: GSAP → content → logic
   ============================================================ -->
+  <script src="./script/meyda.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
   <script src="./script/content.js"></script>
   <script src="./script/index.js"></script>
