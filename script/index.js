@@ -936,7 +936,9 @@ function initStarfield() {
   let w = 0, h = 0, dpr = 1;
   let stars = [];
   const shooting = [];
+  const target = { x: 0, y: 0 };
   const pointer = { x: 0, y: 0 };
+  let gyroActive = false;
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   function build() {
@@ -959,20 +961,82 @@ function initStarfield() {
   }
 
   function onPointerMove(e) {
-    pointer.x = (e.clientX / window.innerWidth - 0.5) * 2;
-    pointer.y = (e.clientY / window.innerHeight - 0.5) * 2;
+    if (!gyroActive) {
+      target.x = (e.clientX / window.innerWidth - 0.5) * 2;
+      target.y = (e.clientY / window.innerHeight - 0.5) * 2;
+    }
   }
+
+  function clamp(val, min, max) {
+    return Math.max(min, Math.min(max, val));
+  }
+
+  function onDeviceOrientation(e) {
+    if (e.gamma == null || e.beta == null) return;
+    gyroActive = true;
+
+    // gamma: left-to-right tilt [-90, 90]
+    // beta: front-to-back tilt [-180, 180] (natural holding angle is ~45deg)
+    const orientation = window.orientation || (screen.orientation ? screen.orientation.angle : 0) || 0;
+    let rawX = e.gamma;
+    let rawY = e.beta - 45;
+
+    if (orientation === 90) {
+      rawX = e.beta;
+      rawY = -e.gamma;
+    } else if (orientation === -90) {
+      rawX = -e.beta;
+      rawY = e.gamma;
+    }
+
+    // 25 degrees tilt gives full parallax range
+    target.x = clamp(rawX / 25, -1.2, 1.2);
+    target.y = clamp(rawY / 25, -1.2, 1.2);
+  }
+
+  function enableGyro() {
+    if (typeof DeviceOrientationEvent !== 'undefined') {
+      if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+        // iOS 13+ requires explicit permission from any user touch gesture
+        DeviceOrientationEvent.requestPermission()
+          .then(permissionState => {
+            if (permissionState === 'granted') {
+              window.addEventListener('deviceorientation', onDeviceOrientation, { passive: true });
+            }
+          })
+          .catch(() => {});
+      } else {
+        // Non-iOS / Android — works immediately
+        window.addEventListener('deviceorientation', onDeviceOrientation, { passive: true });
+      }
+    }
+  }
+
+  // Attempt immediate registration on page load (works automatically on Android and desktop)
+  if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission !== 'function') {
+    window.addEventListener('deviceorientation', onDeviceOrientation, { passive: true });
+  }
+
+  // For iOS Safari: request permission on the very first touch/tap anywhere on the screen
+  const activateOnFirstTouch = () => { enableGyro(); };
+  window.addEventListener('touchstart', activateOnFirstTouch, { once: true, passive: true });
+  window.addEventListener('pointerdown', activateOnFirstTouch, { once: true, passive: true });
+  window.addEventListener('click', activateOnFirstTouch, { once: true, passive: true });
 
   let t = 0;
   function render() {
     t += 0.012;
     ctx.clearRect(0, 0, w, h);
 
+    // Smooth fluid physics easing (LERP) — gives a silky momentum and eliminates jitter
+    pointer.x += (target.x - pointer.x) * 0.075;
+    pointer.y += (target.y - pointer.y) * 0.075;
+
     for (const s of stars) {
       s.tw += 0.02 + s.z * 0.03;
       const alpha = (0.35 + Math.abs(Math.sin(s.tw)) * 0.65) * s.z;
-      const px = s.x + pointer.x * 18 * s.z;
-      const py = s.y + pointer.y * 18 * s.z + Math.sin(t * 0.4 + s.x * 0.01) * 2 * s.z;
+      const px = s.x + pointer.x * 24 * s.z;
+      const py = s.y + pointer.y * 24 * s.z + Math.sin(t * 0.4 + s.x * 0.01) * 2 * s.z;
 
       ctx.beginPath();
       ctx.fillStyle = `hsla(${s.hue}, 95%, ${s.hue === 220 ? 94 : 82}%, ${alpha.toFixed(3)})`;
