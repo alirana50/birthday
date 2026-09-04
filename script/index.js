@@ -1146,12 +1146,11 @@ function startExperience() {
 
   // Start music (requires user gesture → click = allowed)
   if (music) {
-    music.volume = 0;
+    try { music.volume = 0.8; } catch (_) {}
     music.play()
       .then(() => {
         state.musicPlaying = true;
         setMusicIcon(true);
-        gsap.to(music, { volume: 0.75, duration: 3 });
       })
       .catch(() => { state.musicPlaying = false; });
   }

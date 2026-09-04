@@ -19,7 +19,7 @@ const CONTENT = {
   // Replace the filename with your chosen song.
   // Place the audio file in the /music/ folder.
   // ============================================================
-  MUSIC_PATH: "./music/hum.webm",
+  MUSIC_PATH: "./music/hum.mp3",
 
   // ============================================================
   // COUNTDOWN TIMER GATE — LAYER BEFORE SECRECY CHECK
