@@ -1704,14 +1704,14 @@ body:not(.unlocked) #experience {
 
 .cake-glow-bg {
   position: absolute;
-  bottom: 0;
+  top: 38%;
   left: 50%;
-  transform: translateX(-50%);
-  width: 650px;
-  height: 450px;
-  background: radial-gradient(ellipse at 50% 100%,
-    rgba(232, 99, 140, 0.28) 0%,
-    rgba(194, 24, 91, 0.12) 40%,
+  transform: translate(-50%, -50%);
+  width: 520px;
+  height: 380px;
+  background: radial-gradient(ellipse at 50% 50%,
+    rgba(232, 99, 140, 0.20) 0%,
+    rgba(255, 183, 77, 0.07) 42%,
     transparent 70%
   );
   pointer-events: none;
@@ -1964,47 +1964,7 @@ body:not(.unlocked) #experience {
   50%      { box-shadow: 0 0 50px rgba(255, 64, 129, 0.85), 0 0 20px rgba(255, 183, 77, 0.5); }
 }
 
-.cake-refresh-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.55rem;
-  min-height: 50px;
-  padding: 0.85rem 1.4rem;
-  font-family: var(--font-ui);
-  font-size: 0.85rem;
-  font-weight: 500;
-  letter-spacing: 0.05em;
-  color: var(--white-soft);
-  background: rgba(255, 255, 255, 0.07);
-  border: 1.5px solid rgba(255, 255, 255, 0.25);
-  border-radius: 50px;
-  cursor: pointer;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
-  transition: all 0.25s ease;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
 
-.cake-refresh-btn:hover {
-  color: var(--pink-rose);
-  border-color: var(--pink-rose);
-  background: rgba(232, 99, 140, 0.18);
-  box-shadow: 0 0 25px rgba(232, 99, 140, 0.45);
-  transform: translateY(-2px);
-}
-
-.cake-refresh-btn:active {
-  transform: scale(0.95);
-}
-
-.cake-refresh-btn:hover .refresh-svg {
-  transform: rotate(-90deg);
-}
-
-.refresh-svg {
-  transition: transform 0.4s ease;
-}
 
 .blow-instruction {
   font-size: clamp(0.85rem, 2.2vw, 1.05rem);
