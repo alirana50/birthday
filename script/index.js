@@ -580,9 +580,9 @@ function init3DCarousel() {
 
   function measure() {
     const w = window.innerWidth;
-    cardW = w < 640 ? 170 : w < 1024 ? 220 : 260;
+    cardW = w < 480 ? 140 : w < 640 ? 170 : w < 1024 ? 220 : 260;
     const cardH = Math.round(cardW * 1.33);
-    radius = Math.round(cardW / (2 * Math.tan(Math.PI / photos.length)) + 40);
+    radius = Math.round(cardW / (2 * Math.tan(Math.PI / photos.length)) + (w < 480 ? 16 : 36));
 
     const cards = ring.querySelectorAll('.carousel-3d-card');
     const step = 360 / photos.length;
@@ -765,10 +765,17 @@ function initParticleCanvas() {
   const MAX_P = () => isMobile() ? 28 : 55;
 
   let particles = [];
+  let pLastW = 0;
+  let pLastH = 0;
 
   function resize() {
-    canvas.width  = window.innerWidth;
-    canvas.height = window.innerHeight;
+    const nw = window.innerWidth;
+    const nh = window.innerHeight;
+    if (pLastW > 0 && Math.abs(nw - pLastW) < 8 && Math.abs(nh - pLastH) < 130) return;
+    pLastW = nw;
+    pLastH = nh;
+    canvas.width  = nw;
+    canvas.height = nh;
   }
 
   function makeP() {
@@ -904,14 +911,13 @@ function startHeroFireworks() {
   }, 2200);
 
   function render() {
-    if (!state.heroFwRunning) {
-      // Fade out remaining particles
-      if (particles.length === 0) return;
+    if (!state.heroFwRunning && particles.length === 0) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      return;
     }
     state.heroFwAnimId = requestAnimationFrame(render);
 
-    ctx.fillStyle = 'rgba(4, 1, 11, 0.18)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     for (let i = particles.length - 1; i >= 0; i--) {
       particles[i].update();
@@ -939,18 +945,34 @@ function initStarfield() {
   const target = { x: 0, y: 0 };
   const pointer = { x: 0, y: 0 };
   let gyroActive = false;
+  let lastW = 0;
+  let lastH = 0;
+  let lastGyroTime = 0;
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  function build() {
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
-    w = window.innerWidth;
-    h = window.innerHeight;
+  function build(force = false) {
+    const nw = window.innerWidth;
+    const nh = window.innerHeight;
+
+    // Mobile Safari & Chrome toolbar expands/collapses by ~40-90px on scroll.
+    // If width hasn't changed and height change is small, IGNORE IT to prevent
+    // regenerating stars and reallocating GPU canvas buffers on every scroll frame!
+    if (!force && lastW > 0 && Math.abs(nw - lastW) < 8 && Math.abs(nh - lastH) < 140) {
+      return;
+    }
+
+    lastW = nw;
+    lastH = nh;
+    w = nw;
+    h = nh;
+    // Cap DPR at 1.5 on mobile to save GPU battery & prevent thermal throttling
+    dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     canvas.width = Math.floor(w * dpr);
     canvas.height = Math.floor(h * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    const count = Math.min(280, Math.floor((w * h) / 5500));
-    stars = Array.from({ length: Math.max(80, count) }, () => ({
+    const count = Math.min(200, Math.floor((w * h) / 5800));
+    stars = Array.from({ length: Math.max(60, count) }, () => ({
       x: Math.random() * w,
       y: Math.random() * h,
       z: Math.random() * 0.8 + 0.2,
@@ -961,6 +983,9 @@ function initStarfield() {
   }
 
   function onPointerMove(e) {
+    // CRITICAL: ignore touch drag events during scroll!
+    // Swiping a finger to scroll must never violently jerk the stars.
+    if (e.pointerType === 'touch') return;
     if (!gyroActive) {
       target.x = (e.clientX / window.innerWidth - 0.5) * 2;
       target.y = (e.clientY / window.innerHeight - 0.5) * 2;
@@ -974,6 +999,11 @@ function initStarfield() {
   function onDeviceOrientation(e) {
     if (e.gamma == null || e.beta == null) return;
     gyroActive = true;
+
+    // Throttle sensor updates to ~60fps to prevent mobile CPU overheating
+    const now = performance.now();
+    if (now - lastGyroTime < 16) return;
+    lastGyroTime = now;
 
     // gamma: left-to-right tilt [-90, 90]
     // beta: front-to-back tilt [-180, 180] (natural holding angle is ~45deg)
@@ -1029,14 +1059,14 @@ function initStarfield() {
     ctx.clearRect(0, 0, w, h);
 
     // Smooth fluid physics easing (LERP) — gives a silky momentum and eliminates jitter
-    pointer.x += (target.x - pointer.x) * 0.075;
-    pointer.y += (target.y - pointer.y) * 0.075;
+    pointer.x += (target.x - pointer.x) * 0.06;
+    pointer.y += (target.y - pointer.y) * 0.06;
 
     for (const s of stars) {
       s.tw += 0.02 + s.z * 0.03;
       const alpha = (0.35 + Math.abs(Math.sin(s.tw)) * 0.65) * s.z;
-      const px = s.x + pointer.x * 24 * s.z;
-      const py = s.y + pointer.y * 24 * s.z + Math.sin(t * 0.4 + s.x * 0.01) * 2 * s.z;
+      const px = s.x + pointer.x * 22 * s.z;
+      const py = s.y + pointer.y * 22 * s.z + Math.sin(t * 0.4 + s.x * 0.01) * 2 * s.z;
 
       ctx.beginPath();
       ctx.fillStyle = `hsla(${s.hue}, 95%, ${s.hue === 220 ? 94 : 82}%, ${alpha.toFixed(3)})`;
@@ -1086,9 +1116,9 @@ function initStarfield() {
     raf = requestAnimationFrame(render);
   }
 
-  build();
+  build(true);
   render();
-  window.addEventListener('resize', build, { passive: true });
+  window.addEventListener('resize', () => build(false), { passive: true });
   window.addEventListener('pointermove', onPointerMove, { passive: true });
 }
 
@@ -1207,6 +1237,15 @@ function startExperience() {
 
   // Stop hero fireworks gracefully
   state.heroFwRunning = false;
+  if (state.heroFwAnimId) {
+    cancelAnimationFrame(state.heroFwAnimId);
+    state.heroFwAnimId = null;
+  }
+  const heroFwCanvas = document.getElementById('hero-fireworks-canvas');
+  if (heroFwCanvas) {
+    const hctx = heroFwCanvas.getContext('2d');
+    if (hctx) hctx.clearRect(0, 0, heroFwCanvas.width, heroFwCanvas.height);
+  }
 
   // Start music (requires user gesture → click = allowed)
   if (music) {
@@ -1247,9 +1286,8 @@ function startExperience() {
     // Set up memory carousel
     initCarouselVisibility();
 
-    // Smoothly ensure Section 2 starts right at top
-    const herSec = document.getElementById('sec-her');
-    if (herSec) herSec.scrollIntoView({ behavior: 'instant', block: 'start' });
+    // Smoothly ensure Section 2 starts right at top without horizontal offset
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }, 1400);
 }
 
@@ -1934,11 +1972,15 @@ function launchBigFireworks() {
       ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
       ctx.fillStyle = this.color;
       ctx.fill();
-      // Trail effect
-      if (this.trail && a > 0.1) {
-        ctx.globalAlpha = a * 0.25;
+      // Luminous spark trail on transparent canvas
+      if (this.trail && a > 0.12) {
+        ctx.globalAlpha = a * 0.35;
         ctx.beginPath();
-        ctx.arc(this.x - this.vx * 2, this.y - this.vy * 2, this.size * 0.6, 0, Math.PI * 2);
+        ctx.arc(this.x - this.vx * 1.5, this.y - this.vy * 1.5, this.size * 0.75, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = a * 0.18;
+        ctx.beginPath();
+        ctx.arc(this.x - this.vx * 3, this.y - this.vy * 3, this.size * 0.5, 0, Math.PI * 2);
         ctx.fill();
       }
     }
@@ -1973,9 +2015,7 @@ function launchBigFireworks() {
     }
     state.fireworksBigId = requestAnimationFrame(render);
 
-    // Dramatic dark trail
-    ctx.fillStyle = 'rgba(2, 0, 10, 0.2)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     for (let i = particles.length - 1; i >= 0; i--) {
       particles[i].update();
