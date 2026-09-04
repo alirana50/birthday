@@ -22,6 +22,24 @@ const CONTENT = {
   MUSIC_PATH: "./music/hum.webm",
 
   // ============================================================
+  // COUNTDOWN TIMER GATE — LAYER BEFORE SECRECY CHECK
+  // Set targetDate to Amna's birthday date and time (ISO format).
+  // Example: "2026-09-04T00:00:00"
+  // Set enabled to false to bypass during testing.
+  // ============================================================
+  COUNTDOWN: {
+    enabled: true,
+    targetDate: "2026-09-04T10:45:00",
+    preTitle: "NOT YET, MY LOVE",
+    titleMain: "The stars are still",
+    titleHighlight: "getting ready",
+    description: "I've been counting down for weeks. When this reaches zero, the whole sky opens up — and everything in it was made for you.",
+    stayHint: "stay right here",
+    unlockedGraffiti: "Happy Birthday Amna! 🎉",
+    unlockedSub: "The whole sky just opened up for you. ❤️",
+  },
+
+  // ============================================================
   // SECRECY CHECK (Love Gate)
   // A romantic verification popup before the hero screen.
   // ============================================================

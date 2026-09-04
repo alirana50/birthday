@@ -37,6 +37,12 @@ const state = {
 //  BOOT
 // ================================================================
 document.addEventListener('DOMContentLoaded', () => {
+  // Disable automatic browser scroll restoration so experience always starts at top
+  if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+  }
+  window.scrollTo(0, 0);
+
   const bgMusic = document.getElementById('bgMusic');
   if (bgMusic) bgMusic.src = CONTENT.MUSIC_PATH;
 
@@ -69,8 +75,14 @@ document.addEventListener('DOMContentLoaded', () => {
     beginBtn.addEventListener('keydown', e => { if (e.key === 'Enter') startExperience(); });
   }
 
-  // Initialize Secrecy Check (Love Gate)
-  initSecrecyCheck();
+  // Build birthday cake candles
+  buildCandles();
+
+  // Initialize Cake & Mic blow controls
+  initCakeInteraction();
+
+  // Start Gate Flow (Countdown -> Secrecy -> Hero)
+  initAppGateFlow();
 });
 
 // ================================================================
@@ -146,7 +158,299 @@ function floatingHeartsBurst(container) {
   });
 }
 
-function initSecrecyCheck() {
+// ================================================================
+//  GATE FLOW CONTROLLER — COUNTDOWN -> SECRECY -> HERO
+// ================================================================
+function initAppGateFlow() {
+  const cdOverlay  = document.getElementById('countdown-overlay');
+  const secOverlay = document.getElementById('secrecy-overlay');
+  const cfgCD      = CONTENT.COUNTDOWN || {};
+  const cfgSec     = CONTENT.SECRECY_CHECK || {};
+
+  // Setup secrecy elements, text & listeners in advance
+  setupSecrecyCheck();
+
+  const now = new Date().getTime();
+  const targetTime = cfgCD.targetDate ? new Date(cfgCD.targetDate).getTime() : 0;
+  const isCountdownActive = Boolean(cfgCD.enabled && targetTime && targetTime > now);
+
+  if (isCountdownActive) {
+    // Show countdown ONLY; explicitly keep secrecy overlay hidden
+    if (cdOverlay)  cdOverlay.style.display  = 'flex';
+    if (secOverlay) secOverlay.style.display = 'none';
+
+    initCountdownGate(() => {
+      // Countdown finished and celebration ended!
+      if (cfgSec.enabled && secOverlay) {
+        secOverlay.style.display = 'flex';
+        gsap.fromTo(secOverlay,
+          { opacity: 0, scale: 0.96 },
+          { opacity: 1, scale: 1, duration: 0.8, ease: 'power2.out' }
+        );
+      } else {
+        if (secOverlay) secOverlay.style.display = 'none';
+        startHeroFireworks();
+        runHeroAnimation();
+      }
+    });
+  } else {
+    // Countdown not active (disabled or target time already passed)
+    if (cdOverlay) cdOverlay.style.display = 'none';
+
+    if (cfgSec.enabled && secOverlay) {
+      secOverlay.style.display = 'flex';
+    } else {
+      if (secOverlay) secOverlay.style.display = 'none';
+      startHeroFireworks();
+      runHeroAnimation();
+    }
+  }
+}
+
+// ================================================================
+//  COUNTDOWN TIMER GATE (Pre-Authentication Layer)
+// ================================================================
+function initCountdownGate(onCompleteCallback) {
+  const overlay        = document.getElementById('countdown-overlay');
+  const cdContent      = document.getElementById('countdownContent');
+  const cdPreTitle     = document.getElementById('cdPreTitle');
+  const cdTitleMain    = document.getElementById('cdTitleMain');
+  const cdTitleHighlight = document.getElementById('cdTitleHighlight');
+  const cdDesc         = document.getElementById('cdDesc');
+  const cdStayHint     = document.getElementById('cdStayHint');
+  const cdCelebScreen  = document.getElementById('cdCelebrationScreen');
+  const cdGrafTitle    = document.getElementById('cdGraffitiTitle');
+  const cdGrafSub      = document.getElementById('cdGraffitiSub');
+
+  const daysEl  = document.getElementById('cdDays');
+  const hoursEl = document.getElementById('cdHours');
+  const minsEl  = document.getElementById('cdMinutes');
+  const secsEl  = document.getElementById('cdSeconds');
+
+  const cfg = CONTENT.COUNTDOWN || {};
+
+  function proceedToNext() {
+    if (overlay) {
+      overlay.classList.add('fade-out');
+      setTimeout(() => {
+        overlay.style.display = 'none';
+        if (typeof onCompleteCallback === 'function') onCompleteCallback();
+      }, 850);
+    } else {
+      if (typeof onCompleteCallback === 'function') onCompleteCallback();
+    }
+  }
+
+  if (!cfg.enabled || !cfg.targetDate || !overlay) {
+    if (overlay) overlay.style.display = 'none';
+    if (typeof onCompleteCallback === 'function') onCompleteCallback();
+    return;
+  }
+
+  const targetTime = new Date(cfg.targetDate).getTime();
+  if (isNaN(targetTime)) {
+    proceedToNext();
+    return;
+  }
+
+  // Populate static UI text
+  if (cdPreTitle)       cdPreTitle.textContent       = cfg.preTitle       || "NOT YET, MY LOVE";
+  if (cdTitleMain)      cdTitleMain.textContent      = cfg.titleMain      || "The stars are still";
+  if (cdTitleHighlight) cdTitleHighlight.textContent = cfg.titleHighlight || "getting ready";
+  if (cdDesc)           cdDesc.textContent           = cfg.description    || "";
+  if (cdStayHint)       cdStayHint.textContent       = cfg.stayHint       || "stay right here";
+  if (cdGrafTitle)      cdGrafTitle.textContent      = cfg.unlockedGraffiti || "Happy Birthday Amna! 🎉";
+  if (cdGrafSub)        cdGrafSub.textContent        = cfg.unlockedSub      || "The whole sky just opened up for you. ❤️";
+
+  let timerInterval = null;
+  let hasUnlocked = false;
+
+  function updateTimer() {
+    const now = new Date().getTime();
+    const diff = targetTime - now;
+
+    if (diff <= 0) {
+      if (hasUnlocked) return;
+      hasUnlocked = true;
+      clearInterval(timerInterval);
+
+      if (daysEl)  daysEl.textContent  = "00";
+      if (hoursEl) hoursEl.textContent = "00";
+      if (minsEl)  minsEl.textContent  = "00";
+      if (secsEl)  secsEl.textContent  = "00";
+
+      // Heart burst celebration
+      floatingHeartsBurst(overlay);
+
+      // Launch dynamic celebration fireworks behind graffiti text
+      const fwInstance = launchCountdownCelebrationFireworks();
+
+      // Transition to Graffiti Celebration Screen
+      if (cdContent) {
+        gsap.to(cdContent, {
+          opacity: 0,
+          scale: 0.92,
+          y: -20,
+          duration: 0.45,
+          ease: 'power2.in',
+          onComplete: () => {
+            cdContent.style.display = 'none';
+            if (cdCelebScreen) {
+              cdCelebScreen.style.display = 'flex';
+              gsap.fromTo(cdCelebScreen,
+                { opacity: 0, scale: 0.7 },
+                { opacity: 1, scale: 1, duration: 0.8, ease: 'back.out(1.6)' }
+              );
+            }
+
+            // Hold Graffiti + Fireworks celebration for 4.5s
+            setTimeout(() => {
+              proceedToNext();
+              setTimeout(() => {
+                if (fwInstance && typeof fwInstance.stop === 'function') {
+                  fwInstance.stop();
+                }
+              }, 900);
+            }, 4500);
+          }
+        });
+      } else {
+        proceedToNext();
+      }
+      return;
+    }
+
+    const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+    if (daysEl)  daysEl.textContent  = String(d).padStart(2, '0');
+    if (hoursEl) hoursEl.textContent = String(h).padStart(2, '0');
+    if (minsEl)  minsEl.textContent  = String(m).padStart(2, '0');
+    if (secsEl)  secsEl.textContent  = String(s).padStart(2, '0');
+  }
+
+  updateTimer();
+  if (!hasUnlocked) {
+    timerInterval = setInterval(updateTimer, 1000);
+  }
+}
+
+// ================================================================
+//  COUNTDOWN CELEBRATION FIREWORKS ENGINE
+// ================================================================
+function launchCountdownCelebrationFireworks() {
+  const canvas = document.getElementById('cd-fireworks-canvas');
+  if (!canvas) return { stop: () => {} };
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return { stop: () => {} };
+
+  let running = true;
+  let rafId = 0;
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+
+  const COLORS = [
+    '#ff1493', '#ff69b4', '#e8638c', '#ffd700',
+    '#ffb74d', '#00e5ff', '#ffffff', '#b388ff', '#ff4081'
+  ];
+
+  class FireworkParticle {
+    constructor(x, y) {
+      const angle   = Math.random() * Math.PI * 2;
+      const speed   = 2.5 + Math.random() * 6.5;
+      this.x        = x;
+      this.y        = y;
+      this.vx       = Math.cos(angle) * speed;
+      this.vy       = Math.sin(angle) * speed;
+      this.color    = COLORS[Math.floor(Math.random() * COLORS.length)];
+      this.alpha    = 1;
+      this.decay    = 0.012 + Math.random() * 0.014;
+      this.size     = 1.8 + Math.random() * 2.8;
+      this.gravity  = 0.065;
+    }
+    update() {
+      this.vy += this.gravity;
+      this.vx *= 0.985;
+      this.vy *= 0.985;
+      this.x   += this.vx;
+      this.y   += this.vy;
+      this.alpha -= this.decay;
+    }
+    draw() {
+      if (this.alpha <= 0) return;
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, this.alpha);
+      ctx.fillStyle = this.color;
+      ctx.shadowColor = this.color;
+      ctx.shadowBlur = 12;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  let particles = [];
+
+  function burst(x, y, count = 65) {
+    for (let i = 0; i < count; i++) {
+      particles.push(new FireworkParticle(x, y));
+    }
+  }
+
+  // Rapid burst sequence across screen
+  let burstTimer = setInterval(() => {
+    if (!running) return;
+    const x = canvas.width * (0.15 + Math.random() * 0.7);
+    const y = canvas.height * (0.15 + Math.random() * 0.55);
+    burst(x, y, 70 + Math.floor(Math.random() * 40));
+  }, 260);
+
+  // Initial immediate explosion of bursts
+  burst(canvas.width * 0.5, canvas.height * 0.35, 95);
+  burst(canvas.width * 0.25, canvas.height * 0.45, 65);
+  burst(canvas.width * 0.75, canvas.height * 0.45, 65);
+
+  function loop() {
+    if (!running) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.update();
+      p.draw();
+      if (p.alpha <= 0) {
+        particles.splice(i, 1);
+      }
+    }
+
+    rafId = requestAnimationFrame(loop);
+  }
+
+  loop();
+
+  return {
+    stop: () => {
+      running = false;
+      clearInterval(burstTimer);
+      cancelAnimationFrame(rafId);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      window.removeEventListener('resize', resize);
+    }
+  };
+}
+
+// ================================================================
+//  SECRECY CHECK (Love Gate)
+// ================================================================
+function setupSecrecyCheck() {
   const overlay  = document.getElementById('secrecy-overlay');
   const card     = document.getElementById('secrecyCard');
   const title    = document.getElementById('secrecyTitle');
@@ -159,19 +463,12 @@ function initSecrecyCheck() {
 
   const cfg = CONTENT.SECRECY_CHECK || {};
 
-  if (!cfg.enabled || !overlay) {
-    if (overlay) overlay.style.display = 'none';
-    startHeroFireworks();
-    runHeroAnimation();
-    return;
-  }
-
   // Populate content
-  if (title)    title.textContent    = cfg.title || "A Little Secret...";
-  if (sub)      sub.textContent      = cfg.subtitle || "";
-  if (question) question.textContent = cfg.question || "Where did we meet?";
-  if (input)    input.placeholder    = cfg.placeholder || "Type your answer...";
-  if (btn)      btn.textContent      = cfg.buttonText || "Unlock →";
+  if (title)    title.textContent    = cfg.title || "A Little Secret Between Us...";
+  if (sub)      sub.textContent      = cfg.subtitle || "Before I show you what I made, I need to make sure it's really you. ❤️";
+  if (question) question.textContent = cfg.question || "Where did we meet for the first time?";
+  if (input)    input.placeholder    = cfg.placeholder || "Type your answer here...";
+  if (btn)      btn.textContent      = cfg.buttonText || "Unlock My Surprise →";
 
   let unlocked = false;
 
@@ -212,12 +509,17 @@ function initSecrecyCheck() {
 
       // Smooth GPU fade into hero screen
       setTimeout(() => {
-        overlay.classList.add('fade-out');
-        setTimeout(() => {
-          overlay.style.display = 'none';
+        if (overlay) {
+          overlay.classList.add('fade-out');
+          setTimeout(() => {
+            overlay.style.display = 'none';
+            startHeroFireworks();
+            runHeroAnimation();
+          }, 650);
+        } else {
           startHeroFireworks();
           runHeroAnimation();
-        }, 650);
+        }
       }, 900);
     } else {
       if (feedback) {
@@ -739,12 +1041,12 @@ function initFloatingHearts() {
 
   for (let i = 0; i < count; i++) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('viewBox', '0 0 32 29');
+    svg.setAttribute('viewBox', '0 0 24 24');
     svg.setAttribute('class', 'floating-heart-svg');
 
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     path.setAttribute('fill', 'currentColor');
-    path.setAttribute('d', 'M16 29S0 18.4 0 9.6C0 4.3 4.2 0 9.4 0 12.4 0 15 1.5 16 3.8 17 1.5 19.6 0 22.6 0 27.8 0 32 4.3 32 18.4 16 29 16 29z');
+    path.setAttribute('d', 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z');
     svg.appendChild(path);
 
     const left = Math.random() * 100;
@@ -1187,19 +1489,32 @@ function burstParticles(el) {
 // ================================================================
 function buildCandles() {
   const cake = document.getElementById('cake');
-  if (!cake || state.candles.length > 0) return;
+  if (!cake) return;
 
-  // 8 candles, spaced across 260px cake
-  for (let i = 0; i < 8; i++) {
-    const left   = 10 + i * 30;
+  // Clear any existing candles
+  const existing = cake.querySelectorAll('.candle');
+  existing.forEach(c => c.remove());
+  state.candles = [];
+
+  // 8 candles arranged in a natural 3D curved perspective arc on the cake surface
+  const count = 8;
+  for (let i = 0; i < count; i++) {
+    const t = i / (count - 1); // 0.0 to 1.0
+    const x = 32 + t * 196;     // 32px to 228px across 260px cake
+    const y = 34 + Math.sin(t * Math.PI) * 22; // natural curved arc on the icing
+
     const candle = document.createElement('div');
     candle.className = 'candle';
-    candle.style.left = left + 'px';
-    candle.style.top  = '-32px';
+    candle.style.left = `${x}px`;
+    candle.style.top  = `${y}px`;
+
+    const wick = document.createElement('div');
+    wick.className = 'candle-wick';
+    candle.appendChild(wick);
 
     const flame = document.createElement('div');
     flame.className = 'flame';
-    flame.style.animationDelay = (Math.random() * 0.65) + 's';
+    flame.style.animationDelay = `${(Math.random() * 0.65).toFixed(2)}s`;
     candle.appendChild(flame);
 
     cake.appendChild(candle);
@@ -1209,6 +1524,10 @@ function buildCandles() {
 
 // ---- Mic detection ----
 function stopMicDetection() {
+  if (state.meydaAnalyzer) {
+    try { state.meydaAnalyzer.stop(); } catch (_) {}
+    state.meydaAnalyzer = null;
+  }
   if (state.micStream) {
     state.micStream.getTracks().forEach(t => t.stop());
     state.micStream = null;
@@ -1227,104 +1546,293 @@ async function checkMicPermission() {
   } catch { return false; }
 }
 
-async function startMicDetection() {
-  if (state.candlesBlown || state.isListening) return;
-  const instr   = document.getElementById('blowInstruction');
-  const fallBtn = document.getElementById('blowFallbackBtn');
+function initCakeInteraction() {
+  const micBtn     = document.getElementById('blowMicBtn');
+  const refreshBtn = document.getElementById('cakeRefreshBtn');
 
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    showFallbackButton();
-    return;
+  if (micBtn && !micBtn.dataset.bound) {
+    micBtn.dataset.bound = 'true';
+    micBtn.addEventListener('click', () => {
+      if (state.candlesBlown) {
+        relightCandles();
+      }
+      requestMicAccess();
+    });
   }
 
-  const already = await checkMicPermission();
-
-  if (already) {
-    requestMicAccess();
-  } else {
-    // Show fallback immediately, let her choose mic too
-    if (fallBtn) fallBtn.style.display = 'block';
-    if (instr) {
-      instr.textContent = '🎤 Or tap your mic icon above to use the microphone';
-      instr.style.cursor = 'pointer';
-      instr.addEventListener('click', requestMicAccess, { once: true });
-    }
+  if (refreshBtn && !refreshBtn.dataset.bound) {
+    refreshBtn.dataset.bound = 'true';
+    refreshBtn.addEventListener('click', () => {
+      relightCandles();
+    });
   }
+}
+
+function startMicDetection() {
+  initCakeInteraction();
 }
 
 function requestMicAccess() {
-  const instr = document.getElementById('blowInstruction');
-  if (instr) instr.textContent = '🎤 Waiting for mic access...';
-  navigator.mediaDevices.getUserMedia({ audio: true })
+  const micBtn     = document.getElementById('blowMicBtn');
+  const micBtnText = document.getElementById('blowMicBtnText');
+  const instr      = document.getElementById('blowInstruction');
+
+  if (micBtnText) micBtnText.textContent = 'Connecting to mic...';
+  if (instr)      instr.textContent      = '🎙️ Please allow microphone access in your browser prompt';
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    if (micBtnText) micBtnText.textContent = '❌ Mic Not Supported';
+    if (instr)      instr.textContent      = 'Your browser does not support microphone input.';
+    return;
+  }
+
+  navigator.mediaDevices.getUserMedia({
+    audio: {
+      noiseSuppression: false,
+      echoCancellation: false,
+      autoGainControl: false,
+      channelCount: 1
+    }
+  })
     .then(stream => {
       state.micStream = stream;
+      if (micBtn)     micBtn.classList.add('listening');
+      if (micBtnText) micBtnText.textContent = '🎙️ Mic Active — Blow Candles!';
       setupAudioAnalysis(stream);
     })
-    .catch(() => showFallbackButton());
+    .catch(err => {
+      if (micBtn)     micBtn.classList.remove('listening');
+      if (micBtnText) micBtnText.textContent = '⚠️ Mic Blocked — Click to Retry';
+      if (instr)      instr.textContent      = 'Microphone access was blocked. Tap the button to try again.';
+    });
 }
 
-function showFallbackButton() {
-  const instr   = document.getElementById('blowInstruction');
-  const fallBtn = document.getElementById('blowFallbackBtn');
-  if (instr)   instr.style.display   = 'none';
-  if (fallBtn) {
-    fallBtn.style.display = 'block';
-    fallBtn.addEventListener('click', blowCandles, { once: true });
+function relightCandles() {
+  state.candlesBlown = false;
+
+  // 1. Relight all candles and clean up smoke / embers
+  let candles = document.querySelectorAll('.candle');
+  if (candles.length === 0) {
+    buildCandles();
+    candles = document.querySelectorAll('.candle');
+  }
+  candles.forEach((c) => {
+    c.classList.remove('out');
+
+    const wick = c.querySelector('.candle-wick');
+    if (wick) wick.classList.remove('ember');
+
+    c.querySelectorAll('.smoke-particle').forEach(s => s.remove());
+
+    const flame = c.querySelector('.flame');
+    if (flame) {
+      flame.style.transform = '';
+      flame.style.filter = '';
+    }
+  });
+
+  // 2. Hide wish granted message
+  const msg = document.getElementById('blownMessage');
+  if (msg) msg.classList.remove('show');
+
+  // 3. Reset button and instructions
+  const micBtn     = document.getElementById('blowMicBtn');
+  const micBtnText = document.getElementById('blowMicBtnText');
+  const instr      = document.getElementById('blowInstruction');
+
+  if (micBtn)     micBtn.classList.remove('listening');
+  if (micBtnText) micBtnText.textContent = 'Connecting to mic...';
+  if (instr)      instr.textContent = '🎙️ Relighting candles and connecting mic...';
+
+  // Immediately restart mic for seamless repeated testing
+  requestMicAccess();
+}
+
+function spawnCandleSmoke(candle) {
+  const wick = candle.querySelector('.candle-wick');
+  if (wick) wick.classList.add('ember');
+
+  // Spawn 5 wisps of curling smoke
+  const count = 5;
+  for (let j = 0; j < count; j++) {
+    setTimeout(() => {
+      if (!state.candlesBlown) return;
+      const smoke = document.createElement('div');
+      smoke.className = 'smoke-particle';
+      candle.appendChild(smoke);
+
+      const driftX   = (Math.random() - 0.5) * 28 + (j % 2 === 0 ? 8 : -8);
+      const riseY    = -34 - Math.random() * 45;
+      const duration = 1.7 + Math.random() * 0.7;
+
+      gsap.fromTo(smoke,
+        { 
+          x: (Math.random() - 0.5) * 4, 
+          y: 0, 
+          scale: 0.35, 
+          opacity: 0.85 
+        },
+        { 
+          x: driftX, 
+          y: riseY, 
+          scale: 2.2 + Math.random() * 1.0, 
+          opacity: 0, 
+          duration: duration, 
+          ease: 'power1.out',
+          onComplete: () => smoke.remove()
+        }
+      );
+    }, j * 140);
   }
 }
 
 function setupAudioAnalysis(stream) {
   const instr = document.getElementById('blowInstruction');
-  if (instr) instr.textContent = '🌬️ Blow into your mic to blow out the candles';
+  if (instr) instr.textContent = '🎙️ Calibrating...';
 
   try {
-    state.audioCtx  = new (window.AudioContext || window.webkitAudioContext)();
-    state.analyser  = state.audioCtx.createAnalyser();
-    const mic       = state.audioCtx.createMediaStreamSource(stream);
-    state.analyser.smoothingTimeConstant = 0.8;
-    state.analyser.fftSize = 512;
+    state.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    state.analyser = state.audioCtx.createAnalyser();
+    state.analyser.fftSize = 1024;
+    state.analyser.smoothingTimeConstant = 0.1;
+
+    const mic = state.audioCtx.createMediaStreamSource(stream);
     mic.connect(state.analyser);
-    const data = new Uint8Array(state.analyser.frequencyBinCount);
+    state.audioCtx.resume(); // Chrome sometimes suspends until interaction
+
+    const buf    = new Uint8Array(state.analyser.fftSize);
+    const flames = document.querySelectorAll('.flame');
+
+    let blowAccum = 0;
+    let sustained = 0;
+    const NEEDED  = 1.0;
+
+    let warmup   = 60;
+    let rmsSum   = 0;
+    let rmsFloor = 0.015;
+
     state.isListening = true;
 
+    function getRMS() {
+      state.analyser.getByteTimeDomainData(buf);
+      let sum = 0;
+      for (let i = 0; i < buf.length; i++) {
+        const s = (buf[i] - 128) / 128;
+        sum += s * s;
+      }
+      return Math.sqrt(sum / buf.length);
+    }
+
     function detect() {
-      if (!state.isListening || state.candlesBlown) { stopMicDetection(); return; }
-      state.analyser.getByteFrequencyData(data);
-      const avg = data.reduce((s, v) => s + v, 0) / data.length;
-      if (avg > 34) { stopMicDetection(); blowCandles(); return; }
+      if (!state.isListening || state.candlesBlown) return;
+      const rms = getRMS();
+
+      // Warmup: measure ambient noise floor
+      if (warmup > 0) {
+        rmsSum += rms;
+        warmup--;
+        if (instr) instr.textContent = `🎙️ Calibrating... ${warmup}`;
+        if (warmup === 0) {
+          // Cap floor at 0.040 — a normal blow produces rms 0.05–0.30,
+          // so this is always detectable even in noisy rooms.
+          rmsFloor = Math.min(0.040, Math.max(0.012, (rmsSum / 60) * 1.3));
+          if (instr) instr.textContent = `✅ Ready! floor:${rmsFloor.toFixed(4)}`;
+        }
+        requestAnimationFrame(detect);
+        return;
+      }
+
+      // DEBUG: live rms display so we can tune the threshold
+      if (instr && !state.candlesBlown) {
+        instr.textContent = `rms:${rms.toFixed(4)}  floor:${rmsFloor.toFixed(4)}  s:${sustained}`;
+        instr.style.color = '';
+      }
+
+      // With AGC OFF: blow into mic → rms 0.05–0.40, speech at distance → rms 0.003–0.020
+      const isBlowing = rms > rmsFloor;
+
+      if (isBlowing) {
+        sustained++;
+        if (sustained >= 8) {
+          const intensity = Math.min(2.0, (rms - rmsFloor) / 0.08);
+
+          flames.forEach((flame, idx) => {
+            flame.classList.add('blowing');
+            const bend    = (idx % 2 === 0 ? 1 : -1) * (16 + intensity * 20);
+            const spreadX = (1 + intensity * 0.7).toFixed(2);
+            const squishY = Math.max(0.35, 1 - intensity * 0.4).toFixed(2);
+            const shiftX  = ((idx % 2 === 0 ? 1 : -1) * intensity * 6).toFixed(1);
+            flame.style.transform = `translate3d(${shiftX}px,0,0) skewX(${bend}deg) scale(${spreadX},${squishY})`;
+          });
+
+          blowAccum += 0.06 * Math.max(0.5, intensity);
+
+          if (instr && blowAccum > 0.3 && !state.candlesBlown) {
+            instr.textContent = '🌬️ Keep blowing! Fire is spreading... 💨';
+            instr.style.color = 'var(--pink-light)';
+          }
+
+          if (blowAccum >= NEEDED) {
+            flames.forEach(f => { f.classList.remove('blowing'); f.style.transform = ''; });
+            stopMicDetection();
+            blowCandles();
+            return;
+          }
+        }
+      } else {
+        sustained = 0;
+        blowAccum = Math.max(0, blowAccum - 0.07);
+        flames.forEach(f => { f.classList.remove('blowing'); if (f.style.transform) f.style.transform = ''; });
+      }
+
       requestAnimationFrame(detect);
     }
+
     detect();
-  } catch {
+
+  } catch (e) {
+    console.error('Audio setup error:', e);
     stopMicDetection();
     showFallbackButton();
   }
 }
+
+
 
 function blowCandles() {
   if (state.candlesBlown) return;
   state.candlesBlown = true;
   stopMicDetection();
 
-  const instr   = document.getElementById('blowInstruction');
-  const fallBtn = document.getElementById('blowFallbackBtn');
-  const msg     = document.getElementById('blownMessage');
+  const micBtn     = document.getElementById('blowMicBtn');
+  const micBtnText = document.getElementById('blowMicBtnText');
+  const instr      = document.getElementById('blowInstruction');
+  const msg        = document.getElementById('blownMessage');
 
-  if (instr)   instr.style.display   = 'none';
-  if (fallBtn) fallBtn.style.display = 'none';
+  if (micBtn)     micBtn.classList.remove('listening');
+  if (micBtnText) micBtnText.textContent = '✨ Candles Blown Out!';
+  if (instr)      instr.textContent = 'All 24 candles extinguished! 🎂 (Tap Relight to test again)';
 
-  // Extinguish candles staggered
-  state.candles.forEach((c, i) => setTimeout(() => c.classList.add('out'), i * 100));
+  // Extinguish candles staggered with realistic smoke wisps rising
+  const candles = document.querySelectorAll('.candle');
+  candles.forEach((c, i) => {
+    setTimeout(() => {
+      c.classList.add('out');
+      spawnCandleSmoke(c);
+    }, i * 90);
+  });
 
   // Show wish granted
   setTimeout(() => {
     if (msg) msg.classList.add('show');
-    // Auto-scroll to fireworks climax
+    // Auto-scroll to fireworks climax after 4.5s (gives user time to test relighting)
     setTimeout(() => {
-      const fw = document.getElementById('sec-fireworks');
-      if (fw) fw.scrollIntoView({ behavior: 'smooth' });
-    }, 2800);
-  }, 1000);
+      if (state.candlesBlown) {
+        const fw = document.getElementById('sec-fireworks');
+        if (fw) fw.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 4500);
+  }, 900);
 }
 
 // ================================================================
