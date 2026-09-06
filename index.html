@@ -195,7 +195,7 @@
       <div class="section-inner centered">
         <p class="memories-subtitle reveal-scroll">THE GALLERY</p>
         <h2 class="section-title section-title--pink reveal-scroll">Moments, spinning</h2>
-        <p class="memories-desc reveal-scroll">Six frames I keep going back to. Give them a push.</p>
+        <p class="memories-desc reveal-scroll">Eight frames I keep going back to. Give them a push.</p>
 
         <div class="carousel-3d-stage-wrap reveal-scroll" id="carousel3DStageWrap">
           <div class="carousel-3d-stage" id="carousel3DStage">
@@ -238,8 +238,9 @@
     </section>
 
     <!-- ──────────────────────────────────────────────────────── -->
-    <!-- SECTION 6: INTERACTIVE GIFT BOX                        -->
+    <!-- SECTION 6: INTERACTIVE GIFT BOX (COMMENTED OUT)          -->
     <!-- ──────────────────────────────────────────────────────── -->
+    <!--
     <section id="sec-gift" class="full-section gift-section">
       <div class="section-inner centered">
 
@@ -250,7 +251,6 @@
           <p class="gift-intro-line reveal-scroll" data-delay="3">And I got you something.</p>
         </div>
 
-        <!-- Gift Box -->
         <div id="gift-wrap" class="gift-wrap" role="button" tabindex="0" aria-label="Open the gift">
           <div class="gift-box" id="giftBox">
             <div class="gift-lid" id="giftLid">
@@ -279,6 +279,7 @@
 
       </div>
     </section>
+    -->
 
     <!-- ──────────────────────────────────────────────────────── -->
     <!-- SECTION 7: BIRTHDAY CAKE + WISH                        -->
@@ -288,7 +289,7 @@
       <div class="cake-glow-bg" aria-hidden="true"></div>
 
       <div class="section-inner centered">
-        <h2 class="section-title section-title--pink reveal-scroll">Make a wish, Amna.</h2>
+        <h2 class="section-title section-title--pink reveal-scroll">Make a wish.</h2>
         <p class="cake-sub reveal-scroll">Don't tell me what it is.</p>
 
         <div class="cake-wrapper">
@@ -362,7 +363,8 @@
     <!-- ──────────────────────────────────────────────────────── -->
     <section id="sec-letter" class="full-section letter-section">
       <div class="section-inner centered">
-        <p class="letter-subtitle reveal-scroll">IN WRITING</p>
+        <p class="letter-subtitle reveal-scroll">So finally, Your birthday wish.
+        </p>
         <h2 class="section-title section-title--pink reveal-scroll">A letter</h2>
         <p class="letter-desc reveal-scroll">Because saying it out loud makes me nervous.</p>
 
@@ -376,7 +378,7 @@
               <path d="M1 4l31 22L63 4" fill="none" stroke="currentColor" stroke-width="1.2" class="envelope-path" />
             </svg>
             <span class="letter-envelope-title">Open the letter</span>
-            <span class="letter-envelope-sub">WRITTEN AT 2AM, OBVIOUSLY</span>
+            <span class="letter-envelope-sub">Written for you with love</span>
           </button>
 
           <!-- Letter paper — 3D unfolds when opened -->
@@ -398,13 +400,23 @@
       <div class="final-fade-top" aria-hidden="true"></div>
       <div class="section-inner centered">
         <p class="final-pre reveal-scroll">One last thing...</p>
-        <p class="final-pre2 reveal-scroll">Because you deserve more than just a birthday message.</p>
+        <p class="final-pre2 reveal-scroll">Because you deserved more than just a birthday message.</p>
 
         <div id="final-content" class="final-content">
           <!-- Populated by JS from CONTENT.FINAL_SURPRISE -->
         </div>
 
-        <button class="replay-btn" id="replayBtn">↺ Experience it again</button>
+        <!-- Action Buttons: BTS Video & Experience It Again -->
+        <div class="final-actions-group" id="finalActionsGroup">
+          <button class="final-action-btn" id="btsBtn" type="button" aria-label="Watch Behind The Scenes">
+            <span class="final-btn-icon" aria-hidden="true">🎬</span>
+            <span id="btsTitle">Watch Behind The Scenes ✨</span>
+          </button>
+          <button class="final-action-btn" id="replayBtn" type="button" aria-label="Experience it again">
+            <span class="final-btn-icon" aria-hidden="true">↺</span>
+            <span>Experience it again</span>
+          </button>
+        </div>
 
         <!-- Romantic Site Footer -->
         <footer class="site-footer">
@@ -416,6 +428,28 @@
     </section>
 
   </main><!-- /#experience -->
+
+  <!-- ============================================================
+       BEHIND THE SCENES VIDEO MODAL
+  ============================================================ -->
+  <div class="bts-modal" id="bts-modal" style="display: none;">
+    <div class="bts-modal-backdrop" id="btsBackdrop"></div>
+    <div class="bts-modal-card">
+      <button class="bts-modal-close" id="btsClose" type="button" aria-label="Close video">✕</button>
+      <div class="bts-video-wrap">
+        <video id="btsVideo" controls playsinline webkit-playsinline preload="none">
+          <source id="btsVideoSource" src="" type="video/mp4">
+          Your browser does not support HTML video.
+        </video>
+        <div class="bts-video-placeholder" id="btsVideoPlaceholder" style="display: none;">
+          <span class="bts-ph-icon">🎬</span>
+          <p class="bts-ph-title">Video ready to be added!</p>
+          <p class="bts-ph-sub">Add your video into <code>video/bts.mp4</code> and it will play right here ❤️</p>
+        </div>
+      </div>
+      <p class="bts-modal-caption" id="btsModalCaption">Watch Behind The Scenes ✨</p>
+    </div>
+  </div>
 
   <!-- ============================================================
        AUDIO

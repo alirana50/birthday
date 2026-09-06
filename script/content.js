@@ -29,7 +29,7 @@ const CONTENT = {
   // ============================================================
   COUNTDOWN: {
     enabled: true,
-    targetDate: "2026-09-04T12:20:00",
+    targetDate: "2026-09-06T23:32:00",
     preTitle: "NOT YET, MY LOVE",
     titleMain: "The stars are still",
     titleHighlight: "getting ready",
@@ -212,6 +212,20 @@ const CONTENT = {
     headline: "8 years.",
     subline: "Still you.",
     closing: "Happy Birthday, Amna. ❤️",
+  },
+
+  // ============================================================
+  // BEHIND THE SCENES VIDEO (Optional)
+  // Set enabled to true and place your video file in the /video/ folder
+  // e.g. "./video/bts.mp4" (or YouTube / direct MP4 URL).
+  // Zero initial load: not a single byte is downloaded until tapped!
+  // ============================================================
+  BEHIND_THE_SCENES: {
+    enabled: true,
+    badge: "Special Memory",
+    title: "Watch Behind The Scenes ✨",
+    description: "A little glimpse of how this whole surprise came to life. ❤️",
+    videoPath: "./video/bts_dummy.MOV",
   },
 
 };
