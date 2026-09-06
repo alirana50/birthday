@@ -1444,10 +1444,19 @@ function runLoveSequence() {
   const dots    = document.querySelectorAll('.love-dot');
   if (!display) return;
 
+  // Clear any existing timer or lingering elements/animations
+  if (state.loveTimer) {
+    clearTimeout(state.loveTimer);
+    state.loveTimer = null;
+  }
+  gsap.killTweensOf('#loveDisplay .love-word');
+  display.innerHTML = '';
+
   const pts = CONTENT.LOVE_POINTS || [];
 
   // Fade in section title
   if (title) {
+    gsap.killTweensOf(title);
     gsap.to(title, { opacity: 1, duration: 0.9, ease: 'power3.out', delay: 0.3 });
   }
 
@@ -1460,7 +1469,7 @@ function runLoveSequence() {
   function showNext() {
     if (idx >= pts.length) {
       // Hold last point, then loop after delay
-      setTimeout(() => {
+      state.loveTimer = setTimeout(() => {
         idx = 0;
         showNext();
       }, 4500);
@@ -1498,12 +1507,14 @@ function runLoveSequence() {
         duration: 0.8,
         ease:    'power3.out',
         delay:   0.35,
-        onComplete: () => setTimeout(showNext, 2600),
+        onComplete: () => {
+          state.loveTimer = setTimeout(showNext, 2600);
+        },
       }
     );
   }
 
-  setTimeout(showNext, 900);
+  state.loveTimer = setTimeout(showNext, 900);
 }
 
 // ================================================================
@@ -1751,7 +1762,7 @@ function requestMicAccess() {
     .then(stream => {
       state.micStream = stream;
       if (micBtn)     micBtn.classList.add('listening');
-      if (micBtnText) micBtnText.textContent = '🎙️ Mic Active — Blow Candles!';
+      if (micBtnText) micBtnText.textContent = 'Mic Active — Blow Candles!';
       setupAudioAnalysis(stream);
     })
     .catch(err => {
@@ -2439,11 +2450,20 @@ function replayExperience() {
   curtain.style.opacity = '1';
 
   setTimeout(() => {
-    // 2. Stop ongoing animations & detection
+    // 2. Stop ongoing animations, voice/video media & mic detection
     state.fireworksBig = false;
     if (state.fireworksBigId) cancelAnimationFrame(state.fireworksBigId);
     stopMicDetection();
-    if (state.loveTimer) clearTimeout(state.loveTimer);
+
+    // Close BTS modal and pause any background videos / audio tracks
+    const btsModal = document.getElementById('bts-modal');
+    if (btsModal) btsModal.style.display = 'none';
+    document.querySelectorAll('video').forEach(v => {
+      try {
+        v.pause();
+        v.currentTime = 0;
+      } catch (err) {}
+    });
 
     // 3. Reset state flags
     state.herPlayed      = false;
@@ -2455,9 +2475,18 @@ function replayExperience() {
 
     // 4. Reset DOM elements & sections
     // --- Section 2: Her lines ---
-    document.querySelectorAll('.her-line').forEach(l => gsap.set(l, { opacity: 0, y: 22 }));
+    document.querySelectorAll('.her-line').forEach(l => {
+      gsap.killTweensOf(l);
+      gsap.set(l, { opacity: 0, y: 22 });
+    });
 
     // --- Section 4: Love points ---
+    if (state.loveTimer) {
+      clearTimeout(state.loveTimer);
+      state.loveTimer = null;
+    }
+    gsap.killTweensOf('#loveDisplay .love-word');
+    gsap.killTweensOf('#loveTitle');
     const loveDisplay = document.getElementById('loveDisplay');
     if (loveDisplay) loveDisplay.innerHTML = '';
     const loveTitle = document.getElementById('loveTitle');
@@ -2465,7 +2494,10 @@ function replayExperience() {
     document.querySelectorAll('.love-dot').forEach((d, i) => d.classList.toggle('active', i === 0));
 
     // --- Section 5: Eight poem ---
-    document.querySelectorAll('.eight-line').forEach(l => gsap.set(l, { opacity: 0, y: 14 }));
+    document.querySelectorAll('.eight-line').forEach(l => {
+      gsap.killTweensOf(l);
+      gsap.set(l, { opacity: 0, y: 14 });
+    });
 
     // --- Section 6: Gift box ---
     const lid = document.getElementById('giftLid');
@@ -2482,8 +2514,14 @@ function replayExperience() {
 
     // --- Section 8: Fireworks ---
     const amnaName = document.getElementById('fwAmnaName');
-    if (amnaName) gsap.set(amnaName, { opacity: 0, scale: 0.88 });
-    document.querySelectorAll('.fw-line').forEach(l => gsap.set(l, { opacity: 0, y: 16 }));
+    if (amnaName) {
+      gsap.killTweensOf(amnaName);
+      gsap.set(amnaName, { opacity: 0, scale: 0.88 });
+    }
+    document.querySelectorAll('.fw-line').forEach(l => {
+      gsap.killTweensOf(l);
+      gsap.set(l, { opacity: 0, y: 16 });
+    });
     const fwCanvas = document.getElementById('fireworks-canvas');
     if (fwCanvas) {
       const ctx = fwCanvas.getContext('2d');
@@ -2494,11 +2532,13 @@ function replayExperience() {
     const letterBtn = document.getElementById('letterEnvelopeBtn');
     if (letterBtn) {
       letterBtn.style.display = '';
+      gsap.killTweensOf(letterBtn);
       gsap.set(letterBtn, { opacity: 1, scale: 1, y: 0 });
     }
     const letterPaper = document.getElementById('letterPaper');
     if (letterPaper) {
       letterPaper.style.display = 'none';
+      gsap.killTweensOf(letterPaper);
       gsap.set(letterPaper, { opacity: 0, y: 40 });
     }
 
@@ -2507,12 +2547,17 @@ function replayExperience() {
     const finalSubline  = document.querySelector('.final-subline');
     const finalClosing  = document.querySelector('.final-closing');
     const finalPhoto    = document.querySelector('.final-photo');
-    if (finalHeadline) gsap.set(finalHeadline, { opacity: 0, scale: 0.88, y: 20 });
-    if (finalSubline)  gsap.set(finalSubline,  { opacity: 0, y: 18 });
-    if (finalClosing)  gsap.set(finalClosing,  { opacity: 0, y: 18 });
-    if (finalPhoto)    gsap.set(finalPhoto,    { opacity: 0, y: 30 });
+    const actionsGroup  = document.getElementById('finalActionsGroup');
+    if (finalHeadline) { gsap.killTweensOf(finalHeadline); gsap.set(finalHeadline, { opacity: 0, scale: 0.88, y: 20 }); }
+    if (finalSubline)  { gsap.killTweensOf(finalSubline);  gsap.set(finalSubline,  { opacity: 0, y: 18 }); }
+    if (finalClosing)  { gsap.killTweensOf(finalClosing);  gsap.set(finalClosing,  { opacity: 0, y: 18 }); }
+    if (finalPhoto)    { gsap.killTweensOf(finalPhoto);    gsap.set(finalPhoto,    { opacity: 0, y: 30 }); }
+    if (actionsGroup)  {
+      gsap.killTweensOf(actionsGroup);
+      actionsGroup.classList.remove('revealed');
+      gsap.set(actionsGroup, { opacity: 0, y: 20 });
+    }
     if (replayBtn) {
-      gsap.set(replayBtn, { opacity: 0 });
       replayBtn.style.pointerEvents = '';
     }
     document.querySelectorAll('.final-pre, .final-pre2').forEach(el => el.classList.remove('revealed'));
