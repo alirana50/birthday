@@ -143,8 +143,7 @@ body:not(.unlocked) #experience {
   position: absolute;
   bottom: -8%;
   color: var(--pink-rose);
-  opacity: 0.55;
-  filter: drop-shadow(0 0 10px rgba(232, 99, 140, 0.85));
+  opacity: 0.65;
   animation: heart-rise linear infinite;
   will-change: transform, opacity;
   pointer-events: none;
@@ -470,85 +469,79 @@ body:not(.unlocked) #experience {
   width: 100%;
 }
 
+.cd-celeb-badge,
 .cd-graffiti-tag {
-  display: inline-block;
-  padding: 0.45rem 1.6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.8rem;
   border-radius: 50px;
-  background: linear-gradient(135deg, rgba(232, 99, 140, 0.4), rgba(255, 183, 77, 0.35));
-  border: 1.5px solid rgba(255, 255, 255, 0.7);
-  box-shadow: 0 0 30px rgba(232, 99, 140, 0.7), inset 0 0 15px rgba(255, 255, 255, 0.2);
+  background: rgba(232, 99, 140, 0.18);
+  border: 1.5px solid rgba(232, 99, 140, 0.55);
+  box-shadow:
+    0 0 30px rgba(232, 99, 140, 0.35),
+    inset 0 0 16px rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   font-family: var(--font-ui);
-  font-size: clamp(0.7rem, 2vw, 0.85rem);
-  font-weight: 600;
-  letter-spacing: 0.35em;
+  font-size: clamp(0.72rem, 1.8vw, 0.85rem);
+  font-weight: 500;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: #fff;
-  margin-bottom: 1.2rem;
-  transform: rotate(-2deg);
-  animation: graffiti-tag-float 2.5s ease-in-out infinite alternate;
+  color: var(--pink-blush);
+  margin-bottom: 1.4rem;
+  will-change: transform;
+  animation: celeb-badge-float 3s ease-in-out infinite alternate;
 }
 
-@keyframes graffiti-tag-float {
-  0% { transform: rotate(-2deg) translateY(0); }
-  100% { transform: rotate(1deg) translateY(-5px); }
+@keyframes celeb-badge-float {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(-5px); }
 }
 
+.cd-celeb-title,
 .cd-graffiti-title {
   font-family: var(--font-script);
-  font-size: clamp(3.8rem, 11vw, 7.8rem);
-  font-weight: 700;
-  color: #fff;
-  text-shadow:
-    0 0 10px #ff69b4,
-    0 0 25px #ff1493,
-    0 0 50px #ff007f,
-    0 0 90px #e8638c,
-    0 0 140px rgba(232, 99, 140, 0.85),
-    3px 5px 0px rgba(0, 0, 0, 0.8);
-  transform: rotate(-2.5deg);
+  font-size: clamp(4.2rem, 12vw, 8.5rem);
+  font-weight: 400;
   line-height: 1.05;
   text-align: center;
-  animation: graffiti-entrance 0.9s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-  letter-spacing: 0.01em;
+  color: #ffffff;
+  margin: 0 0 0.8rem;
+  letter-spacing: 0.02em;
+  text-shadow:
+    0 0 20px rgba(255, 255, 255, 0.9),
+    0 0 45px rgba(232, 99, 140, 0.85),
+    0 0 85px rgba(244, 154, 184, 0.55),
+    0 0 130px rgba(194, 24, 91, 0.35);
   will-change: transform, opacity;
 }
 
-@keyframes graffiti-entrance {
-  0% {
-    opacity: 0;
-    transform: scale(0.4) rotate(-10deg);
-    filter: blur(8px);
-  }
-  70% {
-    transform: scale(1.08) rotate(-1deg);
-    filter: blur(0px);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) rotate(-2.5deg);
-  }
-}
-
+.cd-celeb-sparkles,
 .cd-graffiti-splash {
-  font-size: clamp(1.4rem, 3.5vw, 2.2rem);
-  margin: 1.2rem 0 0.8rem;
-  filter: drop-shadow(0 0 20px #ff69b4);
-  letter-spacing: 0.4em;
-  animation: graffiti-splash-pulse 1.8s ease-in-out infinite alternate;
+  font-size: clamp(1.25rem, 3vw, 1.8rem);
+  margin: 0.5rem 0 1.2rem;
+  filter: drop-shadow(0 0 16px rgba(232, 99, 140, 0.7));
+  letter-spacing: 0.35em;
+  animation: celeb-sparkle-pulse 2.2s ease-in-out infinite alternate;
 }
 
-@keyframes graffiti-splash-pulse {
-  0% { transform: scale(0.95); opacity: 0.8; }
-  100% { transform: scale(1.08); opacity: 1; }
+@keyframes celeb-sparkle-pulse {
+  0%   { transform: scale(0.96); opacity: 0.82; }
+  100% { transform: scale(1.06); opacity: 1; }
 }
 
+.cd-celeb-sub,
 .cd-graffiti-sub {
   font-family: var(--font-display);
   font-style: italic;
-  font-size: clamp(1.2rem, 3vw, 1.8rem);
-  color: var(--white-warm);
-  margin-top: 0.8rem;
-  text-shadow: 0 0 30px rgba(232, 99, 140, 0.6);
+  font-size: clamp(1.15rem, 2.8vw, 1.7rem);
+  color: var(--white-soft);
+  max-width: 620px;
+  line-height: 1.45;
+  margin-top: 0.4rem;
+  text-shadow: 0 0 30px rgba(232, 99, 140, 0.5);
   text-align: center;
 }
 
@@ -1190,26 +1183,28 @@ body:not(.unlocked) #experience {
   font-style: italic;
   font-size: clamp(0.95rem, 2vw, 1.15rem);
   color: var(--white-soft);
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.2rem;
   text-align: center;
 }
 
 /* 3D Carousel Stage */
 .carousel-3d-stage-wrap {
   width: 100%;
-  max-width: 1000px;
+  max-width: 1100px;
   margin: 0 auto;
   user-select: none;
   -webkit-user-select: none;
-  overflow: hidden;
+  overflow-x: clip;
+  overflow-y: visible;
+  padding: 0;
 }
 
 .carousel-3d-stage {
   position: relative;
   margin: 0 auto;
   width: 100%;
-  height: clamp(380px, 48vh, 480px);
-  perspective: 1200px;
+  height: clamp(380px, 48vh, 450px);
+  perspective: 1100px;
   cursor: grab;
   touch-action: pan-y;
 }
@@ -1221,7 +1216,7 @@ body:not(.unlocked) #experience {
 .carousel-3d-ring {
   position: absolute;
   left: 50%;
-  top: 50%;
+  top: 48%;
   width: 0;
   height: 0;
   transform-style: preserve-3d;
@@ -1273,15 +1268,15 @@ body:not(.unlocked) #experience {
   position: absolute;
   inset: auto 0 0 0;
   background: linear-gradient(to top,
-    rgba(8, 3, 20, 0.95) 0%,
-    rgba(8, 3, 20, 0.65) 65%,
+    rgba(8, 3, 20, 0.96) 0%,
+    rgba(8, 3, 20, 0.72) 65%,
     transparent 100%
   );
-  padding: 1.2rem 0.9rem 0.9rem;
+  padding: 1.5rem 1rem 1.1rem;
   text-align: center;
   font-family: var(--font-display);
   font-style: italic;
-  font-size: clamp(0.85rem, 1.8vw, 1.02rem);
+  font-size: clamp(0.88rem, 1.8vw, 1.05rem);
   color: var(--white-warm);
   line-height: 1.35;
   text-shadow: 0 0 12px rgba(232, 99, 140, 0.5);
@@ -1291,15 +1286,16 @@ body:not(.unlocked) #experience {
 .carousel-3d-hint {
   position: relative;
   z-index: 10;
-  margin-top: 4.8rem;
+  margin-top: 1.3rem;
+  margin-bottom: 0.8rem;
   text-align: center;
-  font-size: 0.72rem;
+  font-size: 0.76rem;
   text-transform: uppercase;
-  letter-spacing: 0.42em;
+  letter-spacing: 0.38em;
   color: var(--pink-rose);
   opacity: 0.85;
   font-weight: 500;
-  text-shadow: 0 0 12px rgba(232, 99, 140, 0.4);
+  text-shadow: 0 0 12px rgba(232, 99, 140, 0.45);
 }
 
 
@@ -1991,7 +1987,18 @@ body:not(.unlocked) #experience {
   50%      { box-shadow: 0 0 50px rgba(255, 64, 129, 0.85), 0 0 20px rgba(255, 183, 77, 0.5); }
 }
 
-
+.blow-mic-btn:disabled,
+.blow-mic-btn.disabled,
+.blow-mic-btn.blown {
+  cursor: default !important;
+  pointer-events: none !important;
+  opacity: 0.85 !important;
+  transform: none !important;
+  border-color: rgba(232, 99, 140, 0.4) !important;
+  background: rgba(232, 99, 140, 0.16) !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35), 0 0 15px rgba(232, 99, 140, 0.18) !important;
+  animation: none !important;
+}
 
 .blow-instruction {
   font-size: clamp(0.85rem, 2.2vw, 1.05rem);
@@ -2332,22 +2339,214 @@ body:not(.unlocked) #experience {
   text-align: center;
 }
 
-.replay-btn {
-  display: block;
-  margin: 4.5rem auto 0 auto;
-  font-size: 0.75rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--white-dim);
-  cursor: pointer;
-  background: none;
-  border: none;
+/* Final Action Buttons Group (BTS & Experience It Again) */
+.final-actions-group {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 1.2rem;
+  margin: 3.5rem auto 1rem;
+  width: 100%;
+  max-width: 600px;
   opacity: 0;
-  transition: color 0.3s;
-  text-align: center;
+  transform: translateY(20px);
+  z-index: 2;
+  position: relative;
 }
 
-.replay-btn:hover { color: var(--pink-blush); }
+.final-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  padding: 0.85rem 1.65rem;
+  border-radius: 50px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1.5px solid rgba(232, 99, 140, 0.35);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(232, 99, 140, 0.15);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: var(--white-warm);
+  font-family: var(--font-ui);
+  font-size: 0.92rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: transform 0.3s var(--ease-spring), border-color 0.3s, box-shadow 0.3s, background 0.3s, color 0.3s;
+  text-decoration: none;
+  line-height: 1;
+}
+
+.final-action-btn:hover {
+  transform: translateY(-3px);
+  background: rgba(232, 99, 140, 0.18);
+  border-color: var(--pink-blush);
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.55), 0 0 35px rgba(232, 99, 140, 0.4);
+  color: #ffffff;
+}
+
+.final-action-btn:active {
+  transform: translateY(-1px);
+}
+
+.final-btn-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+  display: inline-block;
+}
+
+@media (max-width: 576px) {
+  .final-actions-group {
+    flex-direction: column;
+    gap: 1rem;
+    width: 90%;
+  }
+
+  .final-action-btn {
+    width: 100%;
+    padding: 0.95rem 1.4rem;
+  }
+}
+
+/* Behind The Scenes Video Modal (9:16 Vertical Portrait) */
+.bts-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 20000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.bts-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(6, 2, 12, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  cursor: pointer;
+}
+
+.bts-modal-card {
+  position: relative;
+  z-index: 2;
+  max-width: min(380px, 86vw);
+  max-height: 94vh;
+  width: 100%;
+  background: rgba(14, 7, 30, 0.96);
+  border: 1.5px solid rgba(232, 99, 140, 0.45);
+  border-radius: 24px;
+  padding: 1.2rem 1.1rem 1rem;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.85), 0 0 60px rgba(232, 99, 140, 0.35);
+  text-align: center;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.bts-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.65);
+  color: var(--pink-blush);
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 1px solid rgba(232, 99, 140, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background 0.25s, transform 0.25s;
+  z-index: 10;
+}
+
+.bts-modal-close:hover {
+  background: rgba(232, 99, 140, 0.35);
+  transform: scale(1.1);
+}
+
+.bts-video-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+  aspect-ratio: 9 / 16;
+  max-height: calc(88vh - 65px);
+  border-radius: 16px;
+  overflow: hidden;
+  background: #000;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+}
+
+.bts-video-wrap video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 16px;
+}
+
+.bts-video-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: radial-gradient(circle at 50% 50%, #1c0b2b 0%, #0c0414 100%);
+  color: var(--white-warm);
+  text-align: center;
+  z-index: 2;
+}
+
+.bts-ph-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.8rem;
+  filter: drop-shadow(0 0 15px rgba(232, 99, 140, 0.6));
+}
+
+.bts-ph-title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--pink-blush);
+  margin-bottom: 0.4rem;
+}
+
+.bts-ph-sub {
+  font-size: 0.85rem;
+  color: var(--white-dim);
+  max-width: 340px;
+  line-height: 1.4;
+}
+
+.bts-ph-sub code {
+  background: rgba(232, 99, 140, 0.2);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  color: #ff80ab;
+}
+
+.bts-modal-caption {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--pink-blush);
+  margin-top: 1.2rem;
+  text-shadow: 0 0 15px rgba(232, 99, 140, 0.5);
+}
+
+
 
 /* Romantic Site Footer */
 .site-footer {
@@ -2433,6 +2632,18 @@ body:not(.unlocked) #experience {
   }
   .mc-arrow--prev { left: 4px; }
   .mc-arrow--next { right: 4px; }
+
+  /* 3D Carousel on Mobile */
+  .carousel-3d-stage {
+    height: clamp(400px, 50vh, 460px);
+  }
+  .memories-desc {
+    margin-bottom: 1.2rem;
+  }
+  .carousel-3d-hint {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+  }
 
   /* Love section */
   .love-word { font-size: clamp(1.8rem, 8.5vw, 3.2rem); }

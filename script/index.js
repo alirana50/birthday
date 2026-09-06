@@ -81,6 +81,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize Cake & Mic blow controls
   initCakeInteraction();
 
+  // Initialize Behind The Scenes button & modal
+  initBehindTheScenes();
+
   // Start Gate Flow (Countdown -> Secrecy -> Hero)
   initAppGateFlow();
 });
@@ -282,38 +285,37 @@ function initCountdownGate(onCompleteCallback) {
       // Heart burst celebration
       floatingHeartsBurst(overlay);
 
-      // Launch dynamic celebration fireworks behind graffiti text
+      // Launch dynamic celebration fireworks behind celebration text
       const fwInstance = launchCountdownCelebrationFireworks();
 
-      // Transition to Graffiti Celebration Screen
-      if (cdContent) {
-        gsap.to(cdContent, {
+      // Silky smooth choreographed transition between countdown and celebration screen
+      if (cdContent && cdCelebScreen) {
+        const tl = gsap.timeline();
+        tl.to(cdContent, {
           opacity: 0,
-          scale: 0.92,
-          y: -20,
-          duration: 0.45,
-          ease: 'power2.in',
+          scale: 0.95,
+          y: -16,
+          duration: 0.5,
+          ease: 'power2.inOut',
           onComplete: () => {
             cdContent.style.display = 'none';
-            if (cdCelebScreen) {
-              cdCelebScreen.style.display = 'flex';
-              gsap.fromTo(cdCelebScreen,
-                { opacity: 0, scale: 0.7 },
-                { opacity: 1, scale: 1, duration: 0.8, ease: 'back.out(1.6)' }
-              );
-            }
-
-            // Hold Graffiti + Fireworks celebration for 4.5s
-            setTimeout(() => {
-              proceedToNext();
-              setTimeout(() => {
-                if (fwInstance && typeof fwInstance.stop === 'function') {
-                  fwInstance.stop();
-                }
-              }, 900);
-            }, 4500);
+            cdCelebScreen.style.display = 'flex';
           }
-        });
+        })
+        .fromTo(cdCelebScreen,
+          { opacity: 0, scale: 0.94, y: 15 },
+          { opacity: 1, scale: 1, y: 0, duration: 0.8, ease: 'power3.out' }
+        );
+
+        // Hold celebration for 4.8s, then proceed to next layer (Secrecy Check or Hero)
+        setTimeout(() => {
+          proceedToNext();
+          setTimeout(() => {
+            if (fwInstance && typeof fwInstance.stop === 'function') {
+              fwInstance.stop();
+            }
+          }, 900);
+        }, 4800);
       } else {
         proceedToNext();
       }
@@ -385,38 +387,42 @@ function launchCountdownCelebrationFireworks() {
     }
     draw() {
       if (this.alpha <= 0) return;
-      ctx.save();
-      ctx.globalAlpha = Math.max(0, this.alpha);
+      const a = Math.max(0, this.alpha);
+      // Outer ambient glow ring
+      ctx.globalAlpha = a * 0.25;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size * 2, 0, Math.PI * 2);
       ctx.fillStyle = this.color;
-      ctx.shadowColor = this.color;
-      ctx.shadowBlur = 12;
+      ctx.fill();
+      // Bright spark core
+      ctx.globalAlpha = a;
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fillStyle = this.color;
       ctx.fill();
-      ctx.restore();
     }
   }
 
   let particles = [];
 
-  function burst(x, y, count = 65) {
+  function burst(x, y, count = 45) {
     for (let i = 0; i < count; i++) {
       particles.push(new FireworkParticle(x, y));
     }
   }
 
-  // Rapid burst sequence across screen
+  // Smoothly staggered opening bursts (avoids dropping frames on frame 0)
+  burst(canvas.width * 0.5, canvas.height * 0.35, 50);
+  setTimeout(() => { if (running) burst(canvas.width * 0.25, canvas.height * 0.42, 38); }, 180);
+  setTimeout(() => { if (running) burst(canvas.width * 0.75, canvas.height * 0.42, 38); }, 380);
+
+  // Ongoing gentle celebration bursts
   let burstTimer = setInterval(() => {
     if (!running) return;
     const x = canvas.width * (0.15 + Math.random() * 0.7);
     const y = canvas.height * (0.15 + Math.random() * 0.55);
-    burst(x, y, 70 + Math.floor(Math.random() * 40));
-  }, 260);
-
-  // Initial immediate explosion of bursts
-  burst(canvas.width * 0.5, canvas.height * 0.35, 95);
-  burst(canvas.width * 0.25, canvas.height * 0.45, 65);
-  burst(canvas.width * 0.75, canvas.height * 0.45, 65);
+    burst(x, y, 35 + Math.floor(Math.random() * 25));
+  }, 420);
 
   function loop() {
     if (!running) return;
@@ -430,6 +436,7 @@ function launchCountdownCelebrationFireworks() {
         particles.splice(i, 1);
       }
     }
+    ctx.globalAlpha = 1;
 
     rafId = requestAnimationFrame(loop);
   }
@@ -574,15 +581,26 @@ function init3DCarousel() {
   let angle = 0;
   let radius = 360;
   let cardW = 240;
+  let cardH = 320;
   let dragging = false;
   let lastX = 0;
   let velocity = -0.06;
 
   function measure() {
     const w = window.innerWidth;
-    cardW = w < 480 ? 140 : w < 640 ? 170 : w < 1024 ? 220 : 260;
-    const cardH = Math.round(cardW * 1.33);
-    radius = Math.round(cardW / (2 * Math.tan(Math.PI / photos.length)) + (w < 480 ? 16 : 36));
+    const h = window.innerHeight;
+
+    if (w < 600) {
+      // Mobile portrait: large, prominent photo cards that fill screen elegantly
+      cardW = w < 380 ? 175 : 195;
+      cardH = Math.round(cardW * 1.36);
+      radius = Math.round(cardW / (2 * Math.tan(Math.PI / photos.length)) + 16);
+    } else {
+      // Laptop & desktop landscape: height-conscious sizing so cards never overlap header or hint
+      cardH = Math.min(235, Math.max(180, Math.round(h * 0.31)));
+      cardW = Math.round(cardH / 1.34);
+      radius = Math.round(cardW / (2 * Math.tan(Math.PI / photos.length)) + 18);
+    }
 
     const cards = ring.querySelectorAll('.carousel-3d-card');
     const step = 360 / photos.length;
@@ -648,17 +666,39 @@ function init3DCarousel() {
   stage.addEventListener('pointerleave', onUp);
   stage.addEventListener('pointercancel', onUp);
 
-  // Animation loop
+  // Visibility-aware animation loop (prevents mobile CPU/battery drain when scrolled away)
+  let isCarouselVisible = false;
+  let carouselRaf = null;
+
   function tick() {
+    if (!isCarouselVisible) {
+      carouselRaf = null;
+      return;
+    }
     if (!dragging) {
       angle += velocity;
       velocity += (-0.06 - velocity) * 0.02;
     }
     ring.style.transform = `translate(-50%, -50%) rotateX(-6deg) rotateY(${angle}deg)`;
-    requestAnimationFrame(tick);
+    carouselRaf = requestAnimationFrame(tick);
   }
 
-  tick();
+  const carouselObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      isCarouselVisible = e.isIntersecting;
+      if (isCarouselVisible && !carouselRaf) {
+        carouselRaf = requestAnimationFrame(tick);
+      }
+    });
+  }, { threshold: 0.05 });
+
+  const memSec = document.getElementById('sec-memories');
+  if (memSec) {
+    carouselObserver.observe(memSec);
+  } else {
+    isCarouselVisible = true;
+    tick();
+  }
 }
 
 function buildLoveDots() {
@@ -1019,9 +1059,9 @@ function initStarfield() {
       rawY = e.gamma;
     }
 
-    // 25 degrees tilt gives full parallax range
-    target.x = clamp(rawX / 25, -1.2, 1.2);
-    target.y = clamp(rawY / 25, -1.2, 1.2);
+    // Increased tilt sensitivity so natural hand motion produces visible parallax
+    target.x = clamp(rawX / 16, -1.6, 1.6);
+    target.y = clamp(rawY / 16, -1.6, 1.6);
   }
 
   function enableGyro() {
@@ -1058,15 +1098,16 @@ function initStarfield() {
     t += 0.012;
     ctx.clearRect(0, 0, w, h);
 
-    // Smooth fluid physics easing (LERP) — gives a silky momentum and eliminates jitter
-    pointer.x += (target.x - pointer.x) * 0.06;
-    pointer.y += (target.y - pointer.y) * 0.06;
+    // Smooth fluid physics easing (LERP) — responsive tracking
+    pointer.x += (target.x - pointer.x) * 0.08;
+    pointer.y += (target.y - pointer.y) * 0.08;
 
     for (const s of stars) {
       s.tw += 0.02 + s.z * 0.03;
       const alpha = (0.35 + Math.abs(Math.sin(s.tw)) * 0.65) * s.z;
-      const px = s.x + pointer.x * 22 * s.z;
-      const py = s.y + pointer.y * 22 * s.z + Math.sin(t * 0.4 + s.x * 0.01) * 2 * s.z;
+      // Distinct 3D holographic depth: foreground stars move up to ~75px, background stars ~18px
+      const px = s.x + pointer.x * (55 * s.z + 16);
+      const py = s.y + pointer.y * (55 * s.z + 16) + Math.sin(t * 0.4 + s.x * 0.01) * 2 * s.z;
 
       ctx.beginPath();
       ctx.fillStyle = `hsla(${s.hue}, 95%, ${s.hue === 220 ? 94 : 82}%, ${alpha.toFixed(3)})`;
@@ -1353,14 +1394,8 @@ function initScrollObservers() {
     }
   });
 
-  // -- Fireworks section --
-  observeOnce('sec-fireworks', 0.25, () => {
-    if (!state.fireworksBig) {
-      state.fireworksBig = true;
-      launchBigFireworks();
-      revealFireworksText();
-    }
-  });
+  // -- Fireworks section (bursts continuously while viewed, pauses when swiped away) --
+  initFireworksSection();
 
   // -- Final section --
   observeOnce('sec-final', 0.2, () => {
@@ -1501,6 +1536,7 @@ function initInteractiveSections() {
   initGiftBox();
   initEnvelopeLetter();
   initFinalButton();
+  initBehindTheScenes();
 }
 
 // ================================================================
@@ -1626,13 +1662,21 @@ function buildCandles() {
 // ---- Mic detection ----
 function stopMicDetection() {
   if (state.micStream) {
-    state.micStream.getTracks().forEach(t => t.stop());
+    try {
+      state.micStream.getTracks().forEach(t => {
+        t.stop();
+        t.enabled = false;
+      });
+    } catch (e) {}
     state.micStream = null;
   }
   if (state.audioCtx) {
-    state.audioCtx.close().catch(() => {});
+    try {
+      state.audioCtx.close().catch(() => {});
+    } catch (e) {}
     state.audioCtx = null;
   }
+  state.analyser = null;
   state.isListening = false;
 }
 
@@ -1649,8 +1693,31 @@ function initCakeInteraction() {
   if (micBtn && !micBtn.dataset.bound) {
     micBtn.dataset.bound = 'true';
     micBtn.addEventListener('click', () => {
+      if (state.candlesBlown) return;
       requestMicAccess();
     });
+  }
+
+  // Ensure mic is stopped whenever user scrolls away from cake section
+  const cakeSec = document.getElementById('sec-cake');
+  if (cakeSec && !cakeSec.dataset.obsBound) {
+    cakeSec.dataset.obsBound = 'true';
+    const cakeObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) {
+          stopMicDetection();
+          const btn = document.getElementById('blowMicBtn');
+          const btnText = document.getElementById('blowMicBtnText');
+          const instr = document.getElementById('blowInstruction');
+          if (btn && !state.candlesBlown) {
+            btn.classList.remove('listening');
+            if (btnText) btnText.textContent = 'Enable Mic to Blow Candles';
+            if (instr) instr.textContent = 'Click the button above to enable your mic, then blow to blow them out';
+          }
+        }
+      });
+    }, { threshold: 0.08 });
+    cakeObserver.observe(cakeSec);
   }
 }
 
@@ -1659,6 +1726,7 @@ function startMicDetection() {
 }
 
 function requestMicAccess() {
+  if (state.candlesBlown) return;
   const micBtn     = document.getElementById('blowMicBtn');
   const micBtnText = document.getElementById('blowMicBtnText');
   const instr      = document.getElementById('blowInstruction');
@@ -1892,12 +1960,31 @@ function blowCandles() {
 
   const micBtn     = document.getElementById('blowMicBtn');
   const micBtnText = document.getElementById('blowMicBtnText');
+  const micIcon    = micBtn ? micBtn.querySelector('.blow-mic-icon') : null;
   const instr      = document.getElementById('blowInstruction');
   const msg        = document.getElementById('blownMessage');
 
-  if (micBtn)     micBtn.classList.remove('listening');
-  if (micBtnText) micBtnText.textContent = '✨ Candles Blown Out!';
-  if (instr)      instr.textContent = 'All 24 candles extinguished! 🎂 Make a wish ❤️';
+  if (micBtn) {
+    micBtn.disabled = true;
+    micBtn.setAttribute('disabled', 'true');
+    micBtn.classList.remove('listening');
+    micBtn.classList.add('blown', 'disabled');
+  }
+  if (micIcon) {
+    micIcon.textContent = '✨';
+  }
+  if (micBtnText) {
+    micBtnText.textContent = 'Candles Blown Out!';
+  }
+
+  // Stop asking to interact again — cleanly remove instruction text
+  if (instr) {
+    instr.style.transition = 'opacity 0.4s ease';
+    instr.style.opacity = '0';
+    setTimeout(() => {
+      if (instr) instr.style.display = 'none';
+    }, 400);
+  }
 
   // Extinguish candles staggered with realistic smoke wisps rising
   const candles = document.querySelectorAll('.candle');
@@ -1924,7 +2011,10 @@ function blowCandles() {
 // ================================================================
 //  SECTION 8 — BIG FIREWORKS (celebration climax)
 // ================================================================
-function launchBigFireworks() {
+function initFireworksSection() {
+  const fwSec = document.getElementById('sec-fireworks');
+  if (!fwSec) return;
+
   const canvas = document.getElementById('fireworks-canvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
@@ -1954,8 +2044,7 @@ function launchBigFireworks() {
       this.decay    = 0.009 + Math.random() * 0.012;
       this.size     = 1.5 + Math.random() * 2.8;
       this.gravity  = 0.06;
-      // Occasional "star" trail
-      this.trail = Math.random() < 0.25;
+      this.trail    = Math.random() < 0.25;
     }
     update() {
       this.vy += this.gravity;
@@ -1972,7 +2061,6 @@ function launchBigFireworks() {
       ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
       ctx.fillStyle = this.color;
       ctx.fill();
-      // Luminous spark trail on transparent canvas
       if (this.trail && a > 0.12) {
         ctx.globalAlpha = a * 0.35;
         ctx.beginPath();
@@ -1987,6 +2075,9 @@ function launchBigFireworks() {
   }
 
   let particles = [];
+  let fwInterval = null;
+  let isSectionInView = false;
+  let textRevealed = false;
 
   function bigBurst() {
     const x     = canvas.width  * (0.1 + Math.random() * 0.8);
@@ -1995,22 +2086,10 @@ function launchBigFireworks() {
     for (let i = 0; i < count; i++) particles.push(new BigParticle(x, y));
   }
 
-  // Rapid opening bursts
-  bigBurst();
-  setTimeout(bigBurst, 500);
-  setTimeout(bigBurst, 1000);
-  setTimeout(bigBurst, 1600);
-
-  // Ongoing bursts
-  const fwInterval = setInterval(() => {
-    if (!state.fireworksBig) { clearInterval(fwInterval); return; }
-    bigBurst();
-    if (Math.random() < 0.6) setTimeout(bigBurst, 320);
-  }, 1500);
-
   function render() {
-    if (!state.fireworksBig && particles.length === 0) {
+    if (!isSectionInView && particles.length === 0) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      state.fireworksBigId = null;
       return;
     }
     state.fireworksBigId = requestAnimationFrame(render);
@@ -2024,7 +2103,51 @@ function launchBigFireworks() {
     }
     ctx.globalAlpha = 1;
   }
-  render();
+
+  function startBursting() {
+    if (fwInterval) return;
+    bigBurst();
+    setTimeout(() => { if (isSectionInView) bigBurst(); }, 450);
+    setTimeout(() => { if (isSectionInView) bigBurst(); }, 950);
+
+    fwInterval = setInterval(() => {
+      if (!isSectionInView) return;
+      bigBurst();
+      if (Math.random() < 0.6) setTimeout(bigBurst, 320);
+    }, 1500);
+
+    if (!state.fireworksBigId) {
+      state.fireworksBigId = requestAnimationFrame(render);
+    }
+  }
+
+  function stopBursting() {
+    if (fwInterval) {
+      clearInterval(fwInterval);
+      fwInterval = null;
+    }
+  }
+
+  const fwObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      isSectionInView = entry.isIntersecting;
+      if (isSectionInView) {
+        if (!textRevealed) {
+          textRevealed = true;
+          revealFireworksText();
+        }
+        startBursting();
+      } else {
+        stopBursting();
+      }
+    });
+  }, { threshold: 0.15 });
+
+  fwObserver.observe(fwSec);
+}
+
+function launchBigFireworks() {
+  // Controlled by initFireworksSection()
 }
 
 function revealFireworksText() {
@@ -2110,20 +2233,121 @@ function initFinalButton() {
   }
 }
 
+function initBehindTheScenes() {
+  const btn         = document.getElementById('btsBtn');
+  const title       = document.getElementById('btsTitle');
+  const modal       = document.getElementById('bts-modal');
+  const backdrop    = document.getElementById('btsBackdrop');
+  const closeBtn    = document.getElementById('btsClose');
+  const video       = document.getElementById('btsVideo');
+  const src         = document.getElementById('btsVideoSource');
+  const caption     = document.getElementById('btsModalCaption');
+  const placeholder = document.getElementById('btsVideoPlaceholder');
+  const bgMusic     = document.getElementById('bgMusic');
+
+  const cfg = CONTENT.BEHIND_THE_SCENES || {};
+  if (cfg.enabled === false) {
+    if (btn) btn.style.display = 'none';
+    return;
+  }
+
+  // Populate dynamic UI text from config
+  if (title)   title.textContent   = cfg.title || "Watch Behind The Scenes ✨";
+  if (caption) caption.textContent = cfg.title || "Behind the Scenes ❤️";
+  if (btn)     btn.style.display   = 'inline-flex';
+
+  let musicWasPlaying = false;
+
+  function openModal() {
+    if (!modal || !video) return;
+
+    if (placeholder) placeholder.style.display = 'none';
+
+    // Set video source
+    const targetVideoPath = cfg.videoPath || "./video/bts.mp4";
+    if (src && (!src.getAttribute('src') || src.getAttribute('src') !== targetVideoPath)) {
+      src.setAttribute('src', targetVideoPath);
+      video.load();
+    }
+
+    // Audio coordination: pause background music so video audio is clear
+    if (bgMusic && !bgMusic.paused) {
+      musicWasPlaying = true;
+      bgMusic.pause();
+    }
+
+    modal.style.display = 'flex';
+    gsap.fromTo(modal,
+      { opacity: 0, scale: 0.95 },
+      { opacity: 1, scale: 1, duration: 0.35, ease: 'power2.out' }
+    );
+
+    video.onerror = () => {
+      if (placeholder) placeholder.style.display = 'flex';
+    };
+    video.onloadeddata = () => {
+      if (placeholder) placeholder.style.display = 'none';
+    };
+
+    // Play video
+    video.currentTime = 0;
+    video.play().catch(err => {
+      // If file not placed yet, show helpful placeholder
+      if (placeholder) placeholder.style.display = 'flex';
+    });
+  }
+
+  function closeModal() {
+    if (!modal || !video) return;
+    video.pause();
+
+    gsap.to(modal, {
+      opacity: 0,
+      scale: 0.95,
+      duration: 0.25,
+      ease: 'power2.in',
+      onComplete: () => {
+        modal.style.display = 'none';
+        // Resume background song smoothly
+        if (musicWasPlaying && bgMusic) {
+          bgMusic.play().catch(() => {});
+        }
+      }
+    });
+  }
+
+  if (btn && !btn.dataset.bound) {
+    btn.dataset.bound = 'true';
+    btn.addEventListener('click', openModal);
+  }
+  if (closeBtn && !closeBtn.dataset.bound) {
+    closeBtn.dataset.bound = 'true';
+    closeBtn.addEventListener('click', closeModal);
+  }
+  if (backdrop && !backdrop.dataset.bound) {
+    backdrop.dataset.bound = 'true';
+    backdrop.addEventListener('click', closeModal);
+  }
+}
+
 function animateFinalSection() {
-  const headline  = document.querySelector('.final-headline');
-  const photo     = document.querySelector('.final-photo');
-  const subline   = document.querySelector('.final-subline');
-  const closing   = document.querySelector('.final-closing');
-  const replayBtn = document.getElementById('replayBtn');
+  const headline     = document.querySelector('.final-headline');
+  const photo        = document.querySelector('.final-photo');
+  const subline      = document.querySelector('.final-subline');
+  const closing      = document.querySelector('.final-closing');
+  const actionsGroup = document.getElementById('finalActionsGroup');
+
+  if (actionsGroup) {
+    actionsGroup.classList.add('revealed');
+  }
 
   const tl = gsap.timeline({ delay: 0.2 });
 
-  if (headline) tl.to(headline, { opacity: 1, scale: 1, y: 0, duration: 1.4, ease: 'power3.out' }, 0);
-  if (photo)    tl.to(photo,    { opacity: 1, y: 0,          duration: 1.0, ease: 'power3.out' }, 0.9);
-  if (subline)  tl.to(subline,  { opacity: 1, y: 0,          duration: 0.9, ease: 'power3.out' }, photo ? 1.5 : 0.9);
-  if (closing)  tl.to(closing,  { opacity: 1, y: 0,          duration: 0.9, ease: 'power3.out' }, photo ? 2.2 : 1.6);
-  if (replayBtn) tl.to(replayBtn, { opacity: 0.5, duration: 0.7 }, photo ? 3.0 : 2.4);
+  if (headline)     tl.to(headline,     { opacity: 1, scale: 1, y: 0, duration: 1.4, ease: 'power3.out' }, 0);
+  if (photo)        tl.to(photo,        { opacity: 1, y: 0,          duration: 1.0, ease: 'power3.out' }, 0.9);
+  if (subline)      tl.to(subline,      { opacity: 1, y: 0,          duration: 0.9, ease: 'power3.out' }, photo ? 1.5 : 0.9);
+  if (closing)      tl.to(closing,      { opacity: 1, y: 0,          duration: 0.9, ease: 'power3.out' }, photo ? 2.2 : 1.6);
+  if (actionsGroup) tl.to(actionsGroup, { opacity: 1, y: 0,          duration: 0.85, ease: 'power3.out' }, photo ? 2.6 : 2.0);
 }
 
 // ================================================================
