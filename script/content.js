@@ -30,13 +30,13 @@ const CONTENT = {
   COUNTDOWN: {
     enabled: true,
     targetDate: "2026-09-06T23:32:00",
-    preTitle: "NOT YET, MY LOVE",
+    preTitle: "NOT YET, LOVE",
     titleMain: "The stars are still",
     titleHighlight: "getting ready",
-    description: "I've been counting down for weeks. When this reaches zero, the whole sky opens up — and everything in it was made for you.",
+    description: "I've been counting down for weeks. When this reaches zero, the whole sky opens up and everything in it was made for you.",
     stayHint: "stay right here",
-    unlockedGraffiti: "Happy Birthday Amna! 🎉",
-    unlockedSub: "The whole sky just opened up for you. ❤️",
+    unlockedGraffiti: "Happy Birthday Amna Zafar! 🎉",
+    unlockedSub: "The whole sky just opened up for you ❤️",
   },
 
   // ============================================================
@@ -46,14 +46,14 @@ const CONTENT = {
   SECRECY_CHECK: {
     enabled: true,
     title: "A Little Secret Between Us...",
-    subtitle: "Before I show you what I made, I need to make sure it's really you. ❤️",
+    subtitle: "Before I show you what I made, I need to make sure it's really you ❤️",
     question: "Where did we meet for the first time?",
     placeholder: "Type your answer here...",
-    buttonText: "Unlock My Surprise →",
+    buttonText: "Unlock the Surprise →",
     // Matches any entry containing these words (case-insensitive)
     validAnswers: ["giga", "giga mall"],
-    successMessage: "I knew it was you. Welcome, my love. ❤️",
-    errorMessage: "Hmm, that doesn't sound right... try again, my love 💕",
+    successMessage: "I knew it was you. Welcome, baby.",
+    errorMessage: "Hmm, that doesn't sound right... try again, baby.",
   },
 
   // ============================================================
@@ -64,7 +64,7 @@ const CONTENT = {
   // Best results: portrait photo, square or 3:4 ratio.
   // Example: "./img/amna.jpg"
   // ============================================================
-  HER_PHOTO: "./img/sia.jpg",
+  HER_PHOTO: "./img/optimized/img-1.jpg",
 
   // ============================================================
   // OPENING HERO TEXT
@@ -72,7 +72,7 @@ const CONTENT = {
   // Line 1 is small, above the name. Line 2 is below.
   // ============================================================
   HERO_TAGLINE_ABOVE: "Happy Birthday,",
-  HERO_TAGLINE_BELOW: "I made this little world for you. ❤️",
+  HERO_TAGLINE_BELOW: "I made this little world for you.",
 
   // ============================================================
   // SECTION 2 — HER BIRTHDAY
@@ -81,9 +81,9 @@ const CONTENT = {
   // The middle line (index 1) will appear larger.
   // ============================================================
   HER_BIRTHDAY_LINES: [
-    "Today isn't about our story.",
-    "It's about you.",
-    "About the person who deserves to feel a little extra special today.",
+    "Everyday is yours, even the world is yours.",
+    "But today is all about you.",
+    "About the most amazing person, who deserves to feel a little extra special today.",
   ],
 
   // ============================================================
@@ -93,52 +93,52 @@ const CONTENT = {
   // ============================================================
   MEMORIES: [
     {
-      date: "Memory 01",
-      title: "Under every star we ever wished on",
-      caption: "Under every star we ever wished on",
-      photoPath: "",
+      date: "01",
+      title: "You are the prettiest flower.",
+      caption: "You are the prettiest flower.",
+      photoPath: "./img/optimized/img-2.JPG",
     },
     {
-      date: "Memory 02",
-      title: "Rain, two cups, no rush",
-      caption: "Rain, two cups, no rush",
-      photoPath: "",
+      date: "02",
+      title: "Even the simplest look is the pretiest.",
+      caption: "Even the simplest look is the pretiest.",
+      photoPath: "./img/optimized/img-3.JPG",
     },
     {
-      date: "Memory 03",
-      title: "That street. That song. Us.",
-      caption: "That street. That song. Us.",
-      photoPath: "",
+      date: "03",
+      title: "The photo that started it all between families.",
+      caption: "The photo that started it all between families.",
+      photoPath: "./img/optimized/img-4.JPG",
     },
     {
-      date: "Memory 04",
-      title: "Words I still mean",
-      caption: "Words I still mean",
-      photoPath: "",
+      date: "04",
+      title: "The purest sweetest soul ever.",
+      caption: "The purest sweetest soul ever.",
+      photoPath: "./img/optimized/img-6.jpg",
     },
     {
-      date: "Memory 05",
-      title: "The sky showing off for you",
-      caption: "The sky showing off for you",
-      photoPath: "",
+      date: "05",
+      title: "That gentle gaze and playful spark",
+      caption: "That gentle gaze and playful spark",
+      photoPath: "./img/optimized/img-7.jpg",
     },
     {
-      date: "Memory 06",
-      title: "Somewhere quiet, still holding hands",
-      caption: "Somewhere quiet, still holding hands",
-      photoPath: "",
+      date: "06",
+      title: "The hottest photo of yours.",
+      caption: "The hottest photo of yours.",
+      photoPath: "./img/optimized/img-8.jpg",
     },
     {
-      date: "Memory 07",
-      title: "Somewhere quiet, still holding hands",
-      caption: "Somewhere quiet, still holding hands",
-      photoPath: "",
+      date: "07",
+      title: "Golden hour was made just for you",
+      caption: "Golden hour was made just for you",
+      photoPath: "./img/optimized/img-9.jpg",
     },
     {
-      date: "Memory 08",
-      title: "Somewhere quiet, still holding hands",
-      caption: "Somewhere quiet, still holding hands",
-      photoPath: "",
+      date: "08",
+      title: "The drama queen with softest light",
+      caption: "The drama queen with softest light",
+      photoPath: "./img/optimized/img-1.jpg",
     },
   ],
 
@@ -148,12 +148,12 @@ const CONTENT = {
   // Replace with your own words. Add as many as you like.
   // ============================================================
   LOVE_POINTS: [
-    "Your smile.",
-    "Your voice.",
-    "The way you make ordinary moments feel different.",
-    "The little things you do.",
-    "The way you care.",
-    "The person you are.",
+    "Your smile and when you laugh like a little girl.",
+    "Your pretty voice. Music to my years when youre not yelling ofc :)",
+    "The way you make every moment special.",
+    "Your little habits.",
+    "The way you care and create drama out of everything.",
+    "The person you are to me to everyone.",
   ],
 
   // ============================================================
@@ -165,8 +165,8 @@ const CONTENT = {
     "24 years of your light in this world.",
     "24 years of laughter, kindness, and grace.",
     "And out of those 24 years...",
-    "I'm the luckiest person because for 8 of them, I got to hold your hand.",
-    "Happy 24th Birthday, my love. ❤️",
+    "I'm the luckiest person because for 8 of them, I got to be with you and wish to be for the rest of our years.",
+    "Happy 24th Birthday, baby ❤️",
   ],
 
   // ============================================================
@@ -210,8 +210,8 @@ const CONTENT = {
     type: "message",
     content: "",
     headline: "8 years.",
-    subline: "Still you.",
-    closing: "Happy Birthday, Amna. ❤️",
+    subline: "So many different versions of you, and ive loved them all.",
+    closing: "Happy Birthday, Amna Zafar. ❤️",
   },
 
   // ============================================================
@@ -224,7 +224,7 @@ const CONTENT = {
     enabled: true,
     badge: "Special Memory",
     title: "Watch Behind The Scenes ✨",
-    description: "A little glimpse of how this whole surprise came to life. ❤️",
+    description: "A little glimpse of how this whole surprise came to life.",
     videoPath: "./video/bts_dummy.MOV",
   },
 

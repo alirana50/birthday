@@ -623,7 +623,7 @@ function init3DCarousel() {
     card.className = 'carousel-3d-card';
 
     const photoHTML = p.photoPath
-      ? `<img src="${p.photoPath}" alt="${p.caption || p.title}" loading="lazy" draggable="false" />`
+      ? `<img src="${p.photoPath}" alt="${p.caption || p.title}" loading="lazy" decoding="async" draggable="false" />`
       : `<div class="carousel-3d-placeholder">🌸</div>`;
 
     card.innerHTML = `
@@ -666,39 +666,43 @@ function init3DCarousel() {
   stage.addEventListener('pointerleave', onUp);
   stage.addEventListener('pointercancel', onUp);
 
-  // Visibility-aware animation loop (prevents mobile CPU/battery drain when scrolled away)
+  // Visibility-aware animation loop (prevents CPU/GPU thrashing when scrolled away)
   let isCarouselVisible = false;
   let carouselRaf = null;
 
   function tick() {
     if (!isCarouselVisible) {
-      carouselRaf = null;
+      if (carouselRaf) {
+        cancelAnimationFrame(carouselRaf);
+        carouselRaf = null;
+      }
       return;
     }
     if (!dragging) {
       angle += velocity;
       velocity += (-0.06 - velocity) * 0.02;
     }
-    ring.style.transform = `translate(-50%, -50%) rotateX(-6deg) rotateY(${angle}deg)`;
+    ring.style.transform = `translate3d(-50%, -50%, 0) rotateX(-6deg) rotateY(${angle.toFixed(2)}deg)`;
     carouselRaf = requestAnimationFrame(tick);
   }
 
   const carouselObserver = new IntersectionObserver(entries => {
     entries.forEach(e => {
       isCarouselVisible = e.isIntersecting;
-      if (isCarouselVisible && !carouselRaf) {
-        carouselRaf = requestAnimationFrame(tick);
+      if (isCarouselVisible) {
+        if (!carouselRaf) {
+          carouselRaf = requestAnimationFrame(tick);
+        }
+      } else {
+        if (carouselRaf) {
+          cancelAnimationFrame(carouselRaf);
+          carouselRaf = null;
+        }
       }
     });
-  }, { threshold: 0.05 });
+  }, { threshold: 0.15 });
 
-  const memSec = document.getElementById('sec-memories');
-  if (memSec) {
-    carouselObserver.observe(memSec);
-  } else {
-    isCarouselVisible = true;
-    tick();
-  }
+  carouselObserver.observe(stage);
 }
 
 function buildLoveDots() {
@@ -802,7 +806,7 @@ function initParticleCanvas() {
   const ctx = canvas.getContext('2d');
 
   const isMobile = () => window.innerWidth < 768;
-  const MAX_P = () => isMobile() ? 28 : 55;
+  const MAX_P = () => isMobile() ? 12 : 24;
 
   let particles = [];
   let pLastW = 0;
@@ -822,13 +826,13 @@ function initParticleCanvas() {
     return {
       x:         Math.random() * canvas.width,
       y:         canvas.height + Math.random() * 30,
-      size:      Math.random() * 2.5 + 0.8,
-      speedY:    -(Math.random() * 0.5 + 0.15),
-      speedX:    (Math.random() - 0.5) * 0.3,
+      size:      Math.random() * 2.2 + 0.8,
+      speedY:    -(Math.random() * 0.45 + 0.15),
+      speedX:    (Math.random() - 0.5) * 0.25,
       opacity:   0,
-      maxOp:     Math.random() * 0.45 + 0.1,
+      maxOp:     Math.random() * 0.4 + 0.1,
       life:      0,
-      maxLife:   Math.random() * 280 + 200,
+      maxLife:   Math.random() * 260 + 180,
     };
   }
 
@@ -836,7 +840,7 @@ function initParticleCanvas() {
     requestAnimationFrame(tick);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    if (particles.length < MAX_P() && Math.random() < 0.55)
+    if (particles.length < MAX_P() && Math.random() < 0.4)
       particles.push(makeP());
 
     particles = particles.filter(p => {
@@ -851,7 +855,7 @@ function initParticleCanvas() {
 
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(232, 99, 140, ${p.opacity})`;
+      ctx.fillStyle = `rgba(232, 99, 140, ${p.opacity.toFixed(2)})`;
       ctx.fill();
 
       return p.life < p.maxLife && p.y > -20;
@@ -1011,12 +1015,12 @@ function initStarfield() {
     canvas.height = Math.floor(h * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    const count = Math.min(200, Math.floor((w * h) / 5800));
-    stars = Array.from({ length: Math.max(60, count) }, () => ({
+    const count = Math.min(100, Math.floor((w * h) / 9000));
+    stars = Array.from({ length: Math.max(45, count) }, () => ({
       x: Math.random() * w,
       y: Math.random() * h,
       z: Math.random() * 0.8 + 0.2,
-      r: Math.random() * 1.8 + 0.5,
+      r: Math.random() * 1.6 + 0.5,
       tw: Math.random() * Math.PI * 2,
       hue: Math.random() < 0.25 ? 350 : Math.random() < 0.5 ? 30 : 220,
     }));
@@ -1236,8 +1240,8 @@ function runHeroAnimation() {
   // Hat drops from above
   if (hatWrap) {
     tl.fromTo(hatWrap,
-      { opacity: 0, y: -20 },
-      { opacity: 1, y: 0, duration: 0.7, ease: 'back.out(1.6)' },
+      { opacity: 0, y: -20, xPercent: -50 },
+      { opacity: 1, y: 0, xPercent: -50, duration: 0.7, ease: 'back.out(1.6)' },
       0.7
     );
   }
