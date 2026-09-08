@@ -29,7 +29,7 @@ const CONTENT = {
   // ============================================================
   COUNTDOWN: {
     enabled: true,
-    targetDate: "2026-09-06T23:32:00",
+    targetDate: "2026-09-12T00:00:00",
     preTitle: "NOT YET, LOVE",
     titleMain: "The stars are still",
     titleHighlight: "getting ready",
