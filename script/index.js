@@ -591,15 +591,20 @@ function init3DCarousel() {
     const h = window.innerHeight;
 
     if (w < 600) {
-      // Mobile portrait: large, prominent photo cards that fill screen elegantly
-      cardW = w < 380 ? 175 : 195;
+      // Mobile portrait: comfortable card size that leaves room for hint & header
+      cardW = w < 380 ? 165 : Math.min(195, Math.round(w * 0.48));
       cardH = Math.round(cardW * 1.36);
       radius = Math.round(cardW / (2 * Math.tan(Math.PI / photos.length)) + 16);
-    } else {
-      // Laptop & desktop landscape: height-conscious sizing so cards never overlap header or hint
-      cardH = Math.min(235, Math.max(180, Math.round(h * 0.31)));
+    } else if (w < 1024) {
+      // Tablets: balanced size
+      cardH = Math.min(270, Math.max(220, Math.round(h * 0.33)));
       cardW = Math.round(cardH / 1.34);
       radius = Math.round(cardW / (2 * Math.tan(Math.PI / photos.length)) + 18);
+    } else {
+      // Laptop & Desktop: balanced size that never collides with header or hint
+      cardH = Math.min(295, Math.max(240, Math.round(h * 0.34)));
+      cardW = Math.round(cardH / 1.34);
+      radius = Math.round(cardW / (2 * Math.tan(Math.PI / photos.length)) + 20);
     }
 
     const cards = ring.querySelectorAll('.carousel-3d-card');
@@ -1484,9 +1489,7 @@ function runLoveSequence() {
     if (prev) {
       gsap.to(prev, {
         opacity:  0,
-        y:        -18,
-        xPercent: -50,
-        yPercent: -50,
+        y:        -16,
         duration: 0.45,
         ease:     'power2.in',
         onComplete: () => prev.remove(),
@@ -1502,12 +1505,10 @@ function runLoveSequence() {
     idx++;
 
     gsap.fromTo(el,
-      { opacity: 0, y: 24, xPercent: -50, yPercent: -50 },
+      { opacity: 0, y: 20 },
       {
         opacity: 1,
         y:       0,
-        xPercent: -50,
-        yPercent: -50,
         duration: 0.8,
         ease:    'power3.out',
         delay:   0.35,
