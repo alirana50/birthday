@@ -442,8 +442,8 @@
     <div class="bts-modal-card">
       <button class="bts-modal-close" id="btsClose" type="button" aria-label="Close video">✕</button>
       <div class="bts-video-wrap">
-        <video id="btsVideo" controls playsinline webkit-playsinline preload="none">
-          <source id="btsVideoSource" src="" type="video/mp4">
+        <video id="btsVideo" controls playsinline webkit-playsinline preload="auto">
+          <source id="btsVideoSource" src="./video/bts_.MP4" type="video/mp4">
           Your browser does not support HTML video.
         </video>
         <div class="bts-video-placeholder" id="btsVideoPlaceholder" style="display: none;">
@@ -452,7 +452,17 @@
           <p class="bts-ph-sub">Add your video into <code>video/bts.mp4</code> and it will play right here ❤️</p>
         </div>
       </div>
-      <p class="bts-modal-caption" id="btsModalCaption">Watch Behind The Scenes ✨</p>
+      <div class="bts-modal-footer">
+        <p class="bts-modal-caption" id="btsModalCaption">Watch Behind The Scenes ✨</p>
+        <a id="btsDownloadBtn" class="bts-download-btn" href="#" download="" aria-label="Download video">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          <span id="btsDownloadText">Download Video</span>
+        </a>
+      </div>
     </div>
   </div>
 

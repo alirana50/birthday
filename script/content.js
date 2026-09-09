@@ -225,7 +225,7 @@ const CONTENT = {
     badge: "Special Memory",
     title: "Watch Behind The Scenes ✨",
     description: "A little glimpse of how this whole surprise came to life.",
-    videoPath: "./video/bts_dummy.MOV",
+    videoPath: "./video/bts_.MP4",
   },
 
 };

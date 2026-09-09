@@ -2249,16 +2249,17 @@ function initFinalButton() {
 }
 
 function initBehindTheScenes() {
-  const btn         = document.getElementById('btsBtn');
-  const title       = document.getElementById('btsTitle');
-  const modal       = document.getElementById('bts-modal');
-  const backdrop    = document.getElementById('btsBackdrop');
-  const closeBtn    = document.getElementById('btsClose');
-  const video       = document.getElementById('btsVideo');
-  const src         = document.getElementById('btsVideoSource');
-  const caption     = document.getElementById('btsModalCaption');
-  const placeholder = document.getElementById('btsVideoPlaceholder');
-  const bgMusic     = document.getElementById('bgMusic');
+  const btn              = document.getElementById('btsBtn');
+  const title            = document.getElementById('btsTitle');
+  const modal            = document.getElementById('bts-modal');
+  const backdrop         = document.getElementById('btsBackdrop');
+  const closeBtn         = document.getElementById('btsClose');
+  const video            = document.getElementById('btsVideo');
+  const src              = document.getElementById('btsVideoSource');
+  const caption          = document.getElementById('btsModalCaption');
+  const placeholder      = document.getElementById('btsVideoPlaceholder');
+  const modalDownloadBtn = document.getElementById('btsDownloadBtn');
+  const bgMusic          = document.getElementById('bgMusic');
 
   const cfg = CONTENT.BEHIND_THE_SCENES || {};
   if (cfg.enabled === false) {
@@ -2266,10 +2267,76 @@ function initBehindTheScenes() {
     return;
   }
 
+  const targetVideoPath = cfg.videoPath || "./video/bts_.MP4";
+  const filename = targetVideoPath.split('/').pop() || "bts_.mp4";
+
+  // Preload video source immediately so browser pre-buffers frames before user taps
+  if (src && src.getAttribute('src') !== targetVideoPath) {
+    src.setAttribute('src', targetVideoPath);
+    src.setAttribute('type', 'video/mp4');
+  }
+  if (video && (!video.src || !video.src.includes(filename))) {
+    video.src = targetVideoPath;
+  }
+
   // Populate dynamic UI text from config
   if (title)   title.textContent   = cfg.title || "Watch Behind The Scenes ✨";
   if (caption) caption.textContent = cfg.title || "Behind the Scenes ❤️";
   if (btn)     btn.style.display   = 'inline-flex';
+
+  // Wire overlay download button with blob support for guaranteed local device saving
+  function wireDownloadBtn(el) {
+    if (!el) return;
+    el.setAttribute('href', targetVideoPath);
+    el.setAttribute('download', filename);
+
+    if (el.dataset.bound) return;
+    el.dataset.bound = 'true';
+
+    el.addEventListener('click', (e) => {
+      // If served via HTTP/HTTPS, fetch blob to ensure browser prompts save instead of streaming in tab
+      if (window.location.protocol.startsWith('http')) {
+        e.preventDefault();
+        const textSpan = el.querySelector('span:last-child') || el;
+        const origText = textSpan.textContent;
+        textSpan.textContent = 'Saving...';
+        el.style.pointerEvents = 'none';
+
+        fetch(targetVideoPath)
+          .then(res => {
+            if (!res.ok) throw new Error('Download failed');
+            return res.blob();
+          })
+          .then(blob => {
+            const blobUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = blobUrl;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+              URL.revokeObjectURL(blobUrl);
+              a.remove();
+            }, 2000);
+            textSpan.textContent = origText;
+            el.style.pointerEvents = '';
+          })
+          .catch(() => {
+            // Direct fallback
+            const a = document.createElement('a');
+            a.href = targetVideoPath;
+            a.download = filename;
+            a.target = '_blank';
+            a.click();
+            textSpan.textContent = origText;
+            el.style.pointerEvents = '';
+          });
+      }
+    });
+  }
+
+  wireDownloadBtn(modalDownloadBtn);
 
   let musicWasPlaying = false;
 
@@ -2278,10 +2345,13 @@ function initBehindTheScenes() {
 
     if (placeholder) placeholder.style.display = 'none';
 
-    // Set video source
-    const targetVideoPath = cfg.videoPath || "./video/bts.mp4";
-    if (src && (!src.getAttribute('src') || src.getAttribute('src') !== targetVideoPath)) {
-      src.setAttribute('src', targetVideoPath);
+    // Verify video source
+    if (!video.src || !video.src.includes(filename)) {
+      if (src) {
+        src.setAttribute('src', targetVideoPath);
+        src.setAttribute('type', 'video/mp4');
+      }
+      video.src = targetVideoPath;
       video.load();
     }
 
@@ -2304,12 +2374,13 @@ function initBehindTheScenes() {
       if (placeholder) placeholder.style.display = 'none';
     };
 
-    // Play video
-    video.currentTime = 0;
-    video.play().catch(err => {
-      // If file not placed yet, show helpful placeholder
-      if (placeholder) placeholder.style.display = 'flex';
-    });
+    // Play video immediately from pre-buffered data
+    const playPromise = video.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(err => {
+        console.warn('Autoplay blocked or playback deferred:', err);
+      });
+    }
   }
 
   function closeModal() {

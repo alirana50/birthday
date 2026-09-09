@@ -2514,7 +2514,7 @@ body:not(.unlocked) #experience {
   width: 100%;
   max-width: 340px;
   aspect-ratio: 9 / 16;
-  max-height: calc(88vh - 65px);
+  max-height: calc(80vh - 90px);
   border-radius: 16px;
   overflow: hidden;
   background: #000;
@@ -2572,13 +2572,70 @@ body:not(.unlocked) #experience {
   color: #ff80ab;
 }
 
+.bts-modal-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 0.8rem;
+  width: 100%;
+}
+
 .bts-modal-caption {
   font-family: var(--font-display);
   font-style: italic;
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: var(--pink-blush);
-  margin-top: 1.2rem;
+  margin: 0;
   text-shadow: 0 0 15px rgba(232, 99, 140, 0.5);
+}
+
+.bts-download-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1.15rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(232, 99, 140, 0.22), rgba(194, 24, 91, 0.35));
+  border: 1px solid rgba(232, 99, 140, 0.4);
+  color: var(--pink-light);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.25s, border-color 0.25s, transform 0.2s, box-shadow 0.25s, color 0.2s;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4), 0 0 14px rgba(232, 99, 140, 0.2);
+}
+
+.bts-download-btn:hover {
+  background: linear-gradient(135deg, rgba(232, 99, 140, 0.38), rgba(194, 24, 91, 0.55));
+  border-color: var(--pink-light);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), 0 0 20px rgba(232, 99, 140, 0.35);
+  color: #ffffff;
+}
+
+.bts-download-btn:active {
+  transform: translateY(0);
+}
+
+.bts-download-btn svg {
+  transition: transform 0.2s;
+}
+
+.bts-download-btn:hover svg {
+  transform: translateY(1px);
+}
+
+@keyframes bts-spin {
+  to { transform: rotate(360deg); }
+}
+
+.bts-download-spin {
+  animation: bts-spin 0.85s linear infinite;
 }
 
 
