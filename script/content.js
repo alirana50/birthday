@@ -190,13 +190,13 @@ const CONTENT = {
   // Written in the letter paper after the envelope opens.
   // ============================================================
   LOVE_LETTER: {
-    salutation: "My love,",
+    salutation: "My Baby,",
     paragraphs: [
-      "I've tried a few times to explain what you did to my life, and every version sounds too small. So here's the honest one: before you, days happened to me. Now I choose them, because you're in them.",
-      "You laugh at things nobody else notices. You remember the details I mention once. You make ordinary Tuesdays feel like something worth keeping.",
-      "Happy birthday. Thank you for being born, for being stubborn, for being kind, and for choosing me back."
+      "Bht bar bol chuka hun Happy birthday but here we go once again happy birthday meri jaan tumne itna wait kya itni excited thi tou mein koi ordinary cheez nh kr skta tha tumhari birthday k liye. I love you so much, I hope this all makes you realise how much you mean to me. Before you, days happened to me. Now I choose them, because you're in them.",
+      "You laugh at things nobody else notices. You remember the details I mention once. You make ordinary days feel like something worth keeping. This is your first birthday after our families have been involved officially. I really really hope you like all of this and it was worth the wait and excitement, all Ive done these past few days is to imagine your reaction to this.",
+      "Happy birthday. Thank you for being born, for being stubborn, for being kind, and for choosing me back. Agr hum laraiyon pe khtm hojatay tou uska yhi mtlb hota k hum kbhi serious thay hee nhi. We are meant to be with each other and always will be because ill always choose you, no matter what."
     ],
-    valediction: "Always yours."
+    valediction: "Always & Forever yours."
   },
 
   // ============================================================
