@@ -29,7 +29,7 @@ const CONTENT = {
   // ============================================================
   COUNTDOWN: {
     enabled: true,
-    targetDate: "2026-09-12T00:00:00",
+    targetDate: "2026-09-10T17:30:00",
     preTitle: "NOT YET, LOVE",
     titleMain: "The stars are still",
     titleHighlight: "getting ready",
@@ -192,9 +192,9 @@ const CONTENT = {
   LOVE_LETTER: {
     salutation: "My Baby,",
     paragraphs: [
-      "Bht bar bol chuka hun Happy birthday but here we go once again happy birthday meri jaan tumne itna wait kya itni excited thi tou mein koi ordinary cheez nh kr skta tha tumhari birthday k liye. I love you so much, I hope this all makes you realise how much you mean to me. Before you, days happened to me. Now I choose them, because you're in them.",
+      "Bht bar bol chuka hun Happy birthday but here we go once again happy birthday meri jaan tumne itna wait kya itni excited thi tou mein koi ordinary cheez nh kr skta tha tumhari birthday k liye. I love you so much, I hope this all makes you realise how much you mean to me. Before you, days happened to me. Now I choose them, because you're in them. I wish in these 8 years I was enough for you.. I wish you were proud of me. Im trying my best to be the best person i can be for you. I hope i can be the perfect guys you keep watching on reels, i hope i can ever do enough for you that you start believing that i love you",
       "You laugh at things nobody else notices. You remember the details I mention once. You make ordinary days feel like something worth keeping. This is your first birthday after our families have been involved officially. I really really hope you like all of this and it was worth the wait and excitement, all Ive done these past few days is to imagine your reaction to this.",
-      "Happy birthday. Thank you for being born, for being stubborn, for being kind, and for choosing me back. Agr hum laraiyon pe khtm hojatay tou uska yhi mtlb hota k hum kbhi serious thay hee nhi. We are meant to be with each other and always will be because ill always choose you, no matter what."
+      "Thank you for being born, for being stubborn, for being kind, and for choosing me back. Agr hum laraiyon pe khtm hojatay tou uska yhi mtlb hota k hum kbhi serious thay hee nhi. We are meant to be with each other and always will be because ill always choose you, no matter what."
     ],
     valediction: "Always & Forever yours."
   },
@@ -209,7 +209,7 @@ const CONTENT = {
   FINAL_SURPRISE: {
     type: "message",
     content: "",
-    headline: "8 years.",
+    headline: "8 years of us.",
     subline: "So many different versions of you, and ive loved them all.",
     closing: "Happy Birthday, Amna Zafar. ❤️",
   },
