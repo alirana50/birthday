@@ -90,7 +90,7 @@
     <canvas id="cd-fireworks-canvas" class="cd-fireworks-canvas"></canvas>
     <div class="cd-celebration-screen" id="cdCelebrationScreen" style="display: none;">
       <span class="cd-graffiti-tag">✨ 24 YEARS OF LIGHT ✨</span>
-      <h1 class="cd-graffiti-title" id="cdGraffitiTitle">Happy Birthday, Amna! 🎉</h1>
+      <h1 class="cd-graffiti-title" id="cdGraffitiTitle">Happy Birthday<br>Amna Zafar! 🎉</h1>
       <div class="cd-graffiti-splash">💖 ✦ 🌸 ✦ 👑 ✦ ✨</div>
       <p class="cd-graffiti-sub" id="cdGraffitiSub">The whole sky just opened up for you. ❤️</p>
     </div>
@@ -108,7 +108,7 @@
       <p class="secrecy-subtitle" id="secrecySubtitle">Before I show you what I made, I need to make sure it's really you. ❤️</p>
       
       <form id="secrecyForm" class="secrecy-form" onsubmit="return false;">
-        <label for="secrecyInput" class="secrecy-label" id="secrecyQuestion">Where did we meet for the first time?</label>
+        <label for="secrecyInput" class="secrecy-label" id="secrecyQuestion">Which animal did I gift you?</label>
         <input 
           type="text" 
           id="secrecyInput" 
@@ -123,6 +123,14 @@
         <button type="submit" id="secrecyBtn" class="secrecy-btn">Unlock My Surprise →</button>
       </form>
     </div>
+
+    <!-- Secret Replay Button (Top Right, outside card, subtle) -->
+    <button type="button" id="secrecyReplayBtn" class="secrecy-corner-replay" aria-label="Replay" title="✨">
+      <svg class="secrecy-replay-svg" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+        <path d="M3 3v5h5" />
+      </svg>
+    </button>
   </div>
 
   <!-- ============================================================

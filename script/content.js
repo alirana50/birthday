@@ -35,8 +35,13 @@ const CONTENT = {
     titleHighlight: "getting ready",
     description: "I've been counting down for weeks. When this reaches zero, the whole sky opens up and everything in it was made for you.",
     stayHint: "stay right here",
-    unlockedGraffiti: "Happy Birthday Amna Zafar! 🎉",
+    unlockedGraffiti: "Happy Birthday<br>Amna Zafar! 🎉",
     unlockedSub: "The whole sky just opened up for you ❤️",
+    // Replay timer duration in seconds. Set to 60s (1 minute).
+    // >>> CHANGE THIS TO 120 (2 minutes) BEFORE COMMITTING <<<
+    replaySeconds: 60,
+    // Fireworks sound downloaded from YouTube (https://www.youtube.com/watch?v=yWqmiOoWBP0)
+    fireworksSound: "./music/fireworks.m4a",
   },
 
   // ============================================================
@@ -47,11 +52,11 @@ const CONTENT = {
     enabled: true,
     title: "A Little Secret Between Us...",
     subtitle: "Before I show you what I made, I need to make sure it's really you ❤️",
-    question: "Where did we meet for the first time?",
+    question: "Which animal did I gift you?",
     placeholder: "Type your answer here...",
     buttonText: "Unlock the Surprise →",
     // Matches any entry containing these words (case-insensitive)
-    validAnswers: ["giga", "giga mall"],
+    validAnswers: ["rabbit", "bunny", "rabbits"],
     successMessage: "I knew it was you. Welcome, baby.",
     errorMessage: "Hmm, that doesn't sound right... try again, baby.",
   },
