@@ -26,7 +26,6 @@ const CONTENT = {
   // Set targetDate to Amna's birthday date and time (ISO format).
   // Example: "2026-09-04T00:00:00"
   // Set enabled to false to bypass during testing.
-  // ============================================================
   COUNTDOWN: {
     enabled: true,
     targetDate: "2026-09-12T00:00:00",
