@@ -37,6 +37,7 @@ const state = {
 //  BOOT
 // ================================================================
 document.addEventListener('DOMContentLoaded', () => {
+  initInitialBlocker();
   // Disable automatic browser scroll restoration so experience always starts at top
   if ('scrollRestoration' in history) {
     history.scrollRestoration = 'manual';
@@ -87,6 +88,39 @@ document.addEventListener('DOMContentLoaded', () => {
   // Start Gate Flow (Countdown -> Secrecy -> Hero)
   initAppGateFlow();
 });
+
+// ================================================================
+//  INITIAL BLOCKER — blocks the full experience until 5 PM today
+// ================================================================
+function initInitialBlocker() {
+  const blocker = document.getElementById('initial-blocker');
+  const expired = document.getElementById('blocker-expired');
+  const timer = document.getElementById('initialBlockerTimer');
+  if (!blocker || !expired || !timer) return;
+
+  const deadline = new Date();
+  deadline.setHours(17, 0, 0, 0);
+  let interval = null;
+
+  function update() {
+    const remaining = deadline.getTime() - Date.now();
+    if (remaining <= 0) {
+      blocker.hidden = true;
+      expired.hidden = false;
+      document.body.classList.add('blocker-expired-state');
+      clearInterval(interval);
+      return;
+    }
+    const seconds = Math.floor(remaining / 1000);
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    timer.textContent = [hours, minutes, secs].map(value => String(value).padStart(2, '0')).join(':');
+  }
+
+  update();
+  interval = setInterval(update, 1000);
+}
 
 // ================================================================
 //  HERO PHOTO SETUP
