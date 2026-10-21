@@ -92,51 +92,6 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Full-screen first gate. It sits above every interactive layer. */
-.initial-blocker,
-.blocker-expired {
-  position: fixed;
-  inset: 0;
-  z-index: 2147483647;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1.25rem;
-  padding: 2rem;
-  background: #09070a;
-  color: #fff;
-  text-align: center;
-}
-
-.initial-blocker-message {
-  max-width: 36rem;
-  font-family: var(--font-ui);
-  font-size: clamp(1.2rem, 5vw, 2rem);
-}
-
-.initial-blocker-timer {
-  font-family: var(--font-ui);
-  font-size: clamp(2.5rem, 12vw, 5rem);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.08em;
-}
-
-.blocker-expired {
-  background: #000;
-  font-family: var(--font-ui);
-  font-size: clamp(1.5rem, 6vw, 3rem);
-}
-
-.initial-blocker[hidden],
-.blocker-expired[hidden] {
-  display: none;
-}
-
-body.blocker-expired-state > :not(#blocker-expired) {
-  display: none !important;
-}
-
 body.unlocked {
   overflow-y: auto;
   overflow-x: hidden;
